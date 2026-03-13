@@ -180,8 +180,14 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       el.style.zIndex = '';
       el.style.pointerEvents = '';
       el.style.transform = '';
-      el.style.width = '';
       el.style.transition = '';
+      // Only clear width for resize modes (where we modified it during drag).
+      // Clearing it for move mode removes React's inline width, and React
+      // won't re-apply it if the value hasn't changed — causing the block
+      // to collapse to content size.
+      if (mode !== 'move') {
+        el.style.width = '';
+      }
     }
 
     // Reset React state

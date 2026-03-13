@@ -15,6 +15,7 @@ export interface ToolbarProps {
   isPresentationMode: boolean;
   error: string | null;
   zoomLevel?: ZoomLevel;
+  isEditorMode?: boolean;
   onSave: () => void;
   onUndo: () => void;
   onRedo: () => void;
@@ -56,6 +57,7 @@ export function Toolbar({
   onTogglePresentation,
   onGoToToday,
   zoomLevel = 'normal',
+  isEditorMode = false,
   onZoomChange,
 }: ToolbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -126,13 +128,15 @@ export function Toolbar({
           type="button"
           className="toolbar__btn toolbar__btn--save"
           onClick={onSave}
-          disabled={isSaving || unsavedCount === 0}
+          disabled={isSaving || (isEditorMode && unsavedCount === 0)}
         >
           {isSaving ? (
             <>
               <span className="toolbar__spinner" />
               Lagrer...
             </>
+          ) : !isEditorMode ? (
+            'Logg inn med GitHub'
           ) : (
             <>
               Lagre til GitHub
