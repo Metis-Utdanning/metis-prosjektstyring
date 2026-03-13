@@ -1,0 +1,687 @@
+/* ==========================================================================
+   Metis Kapasitetskalender — App CSS
+   BEM naming, CSS custom properties, single file
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Custom properties
+   -------------------------------------------------------------------------- */
+
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f9fafb;
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+  --color-text-inverse: #ffffff;
+  --color-danger: #ef4444;
+  --color-danger-bg: #fee2e2;
+  --color-danger-border: #fecaca;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-today: #ef4444;
+
+  --capacity-green: #def7ec;
+  --capacity-yellow: #fef3c7;
+  --capacity-red: #fee2e2;
+
+  --label-width: 120px;
+  --swimlane-min-height: 160px;
+  --toolbar-height: 48px;
+  --header-z: 40;
+  --toolbar-z: 60;
+  --today-z: 50;
+  --drag-z: 100;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-base: 14px;
+  --font-lg: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Reset & base
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  font-size: var(--font-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.5;
+  min-width: 1280px;
+}
+
+/* --------------------------------------------------------------------------
+   App shell
+   -------------------------------------------------------------------------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Toolbar
+   -------------------------------------------------------------------------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  position: sticky;
+  top: 0;
+  z-index: var(--toolbar-z);
+  height: var(--toolbar-height);
+}
+
+.toolbar button {
+  padding: 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  white-space: nowrap;
+}
+
+.toolbar button:hover {
+  background: var(--color-surface);
+}
+
+.toolbar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.toolbar__save-btn {
+  background: var(--color-primary) !important;
+  color: var(--color-text-inverse) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.toolbar__save-btn:hover {
+  background: var(--color-primary-hover) !important;
+}
+
+.toolbar__badge {
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: var(--font-sm);
+  margin-left: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   This-week summary
+   -------------------------------------------------------------------------- */
+
+.this-week {
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.this-week:hover {
+  background: #f3f4f6;
+}
+
+/* --------------------------------------------------------------------------
+   Timeline container
+   -------------------------------------------------------------------------- */
+
+.timeline-container {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
+}
+
+.timeline {
+  position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   Timeline header
+   -------------------------------------------------------------------------- */
+
+.timeline-header {
+  position: sticky;
+  top: var(--toolbar-height);
+  z-index: var(--header-z);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.timeline-header__months {
+  display: flex;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.timeline-header__month {
+  padding: 4px 8px;
+  font-weight: 600;
+  font-size: var(--font-sm);
+  text-transform: capitalize;
+  border-right: 1px solid var(--color-border-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-header__weeks {
+  display: flex;
+}
+
+.timeline-header__week {
+  padding: 4px 8px;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  border-right: 1px solid var(--color-border-light);
+}
+
+/* --------------------------------------------------------------------------
+   Swimlane
+   -------------------------------------------------------------------------- */
+
+.swimlane {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.swimlane--overbooked {
+  outline: 2px solid var(--color-danger);
+  outline-offset: -2px;
+}
+
+.swimlane__label {
+  width: var(--label-width);
+  min-width: var(--label-width);
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: var(--font-base);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+}
+
+.swimlane__content {
+  position: relative;
+  min-height: var(--swimlane-min-height);
+  margin-left: var(--label-width);
+}
+
+/* --------------------------------------------------------------------------
+   Block
+   -------------------------------------------------------------------------- */
+
+.block {
+  position: absolute;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  top: 4px;
+}
+
+.block:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.block--planned {
+  border: 2px dashed rgba(0, 0, 0, 0.25);
+  opacity: 0.7;
+}
+
+.block--active {
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.block--done {
+  opacity: 0.8;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.block--done::after {
+  content: '\2713';
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.block--dragging {
+  opacity: 0.5;
+  z-index: var(--drag-z);
+}
+
+.block__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 8px;
+  font-size: var(--font-sm);
+  color: var(--color-text-inverse);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  width: 100%;
+}
+
+.block__resize-handle {
+  position: absolute;
+  width: 8px;
+  top: 0;
+  bottom: 0;
+  cursor: ew-resize;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.block__resize-handle--start {
+  left: 0;
+}
+
+.block__resize-handle--end {
+  right: 0;
+}
+
+.block:hover .block__resize-handle {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   Capacity bar
+   -------------------------------------------------------------------------- */
+
+.capacity-bar {
+  height: 24px;
+  display: flex;
+  margin-left: var(--label-width);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.capacity-bar__cell {
+  flex: none;
+  text-align: center;
+  font-size: var(--font-xs);
+  line-height: 24px;
+  color: var(--color-text-muted);
+  border-right: 1px solid var(--color-border-light);
+}
+
+.capacity-bar__cell--green {
+  background: var(--capacity-green);
+}
+
+.capacity-bar__cell--yellow {
+  background: var(--capacity-yellow);
+}
+
+.capacity-bar__cell--red {
+  background: var(--capacity-red);
+  color: #991b1b;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Today marker
+   -------------------------------------------------------------------------- */
+
+.today-marker {
+  position: absolute;
+  width: 2px;
+  background: var(--color-today);
+  z-index: var(--today-z);
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.today-marker::before {
+  content: 'I dag';
+  position: absolute;
+  top: -18px;
+  left: -14px;
+  font-size: 10px;
+  color: var(--color-today);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Unavailable (vacation, leave, etc.)
+   -------------------------------------------------------------------------- */
+
+.unavailable {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    #f3f4f6,
+    #f3f4f6 10px,
+    #e5e7eb 10px,
+    #e5e7eb 20px
+  );
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  border-radius: var(--radius-sm);
+}
+
+.unavailable__label {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --------------------------------------------------------------------------
+   Milestone
+   -------------------------------------------------------------------------- */
+
+.milestone-row {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.milestone {
+  position: absolute;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.milestone__marker {
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  background: #374151;
+  flex-shrink: 0;
+}
+
+.milestone__label {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.milestone:hover .milestone__marker {
+  background: var(--color-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Legend
+   -------------------------------------------------------------------------- */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-sm);
+}
+
+.legend__swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Dialogs
+   -------------------------------------------------------------------------- */
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+dialog {
+  border: none;
+  padding: 0;
+}
+
+.dialog {
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  min-width: 400px;
+  max-width: 520px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.dialog h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.dialog__field {
+  margin-bottom: 12px;
+}
+
+.dialog__field label {
+  display: block;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.dialog__field input,
+.dialog__field select,
+.dialog__field textarea {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-base);
+  font-family: inherit;
+}
+
+.dialog__field input[type='number'] {
+  width: 80px;
+}
+
+.dialog__field input[type='date'] {
+  width: auto;
+}
+
+.dialog__field textarea {
+  resize: vertical;
+}
+
+.dialog__color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.dialog__color-swatch:hover {
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.dialog__color-swatch--selected {
+  border-color: var(--color-text) !important;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-text);
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.dialog__actions button {
+  padding: 6px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  cursor: pointer;
+  font-size: var(--font-base);
+}
+
+.dialog__actions button:hover {
+  background: var(--color-surface);
+}
+
+.dialog__btn--primary {
+  background: var(--color-primary) !important;
+  color: var(--color-text-inverse) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.dialog__btn--primary:hover {
+  background: var(--color-primary-hover) !important;
+}
+
+.dialog__btn--danger {
+  color: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+}
+
+.dialog__btn--danger:hover {
+  background: var(--color-danger-bg) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Presentation mode overrides
+   -------------------------------------------------------------------------- */
+
+.app--presentation .toolbar {
+  display: none;
+}
+
+.app--presentation .block__title {
+  font-size: var(--font-lg);
+}
+
+.app--presentation .legend {
+  font-size: var(--font-lg);
+}
+
+.app--presentation .legend__swatch {
+  width: 18px;
+  height: 18px;
+}
+
+.app--presentation .capacity-bar__cell {
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+.app--presentation .swimlane__label {
+  font-size: var(--font-lg);
+}
+
+.app--presentation .timeline-header__month {
+  font-size: var(--font-base);
+}
+
+.app--presentation .timeline-header__week {
+  font-size: var(--font-sm);
+}
+
+.app--presentation .this-week {
+  font-size: var(--font-lg);
+  padding: 16px 24px;
+}
+
+/* --------------------------------------------------------------------------
+   Print styles
+   -------------------------------------------------------------------------- */
+
+@media print {
+  .toolbar {
+    display: none !important;
+  }
+
+  .this-week {
+    break-after: avoid;
+  }
+
+  .timeline-container {
+    overflow: visible !important;
+  }
+
+  .timeline {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .block,
+  .capacity-bar__cell,
+  .legend__swatch,
+  .unavailable,
+  .milestone__marker {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    min-width: 0;
+  }
+
+  .app {
+    min-height: 0;
+  }
+
+  dialog {
+    display: none !important;
+  }
+}
