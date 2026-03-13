@@ -56,8 +56,7 @@ body {
   overflow: auto;
   position: relative;
   min-height: 0; /* allow flex child to shrink below content size */
-  /* Dark label column + light content area — fills entire scroll region */
-  background: linear-gradient(to right, #1c1917 120px, #fafaf9 120px);
+  background: #fafaf9;
 }
 
 /* Custom scrollbar for a polished feel */
@@ -213,7 +212,7 @@ body {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background: linear-gradient(to right, #1c1917 120px, #fafaf9 120px);
+  background: #fafaf9;
 }
 
 .skeleton-header {

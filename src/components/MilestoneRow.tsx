@@ -28,20 +28,22 @@ export default function MilestoneRow({
   return (
     <div className="milestone-row">
       <div className="milestone-row__label">Milepæler</div>
-      {positioned.map((ms) => (
-        <div
-          key={ms.id}
-          className="milestone-row__marker"
-          style={{ left: ms.offset }}
-          title={ms.description ?? ms.title}
-          onClick={() => onMilestoneClick?.(ms)}
-        >
-          <span className="milestone-row__diamond" aria-hidden="true">
-            ◆
-          </span>
-          <span className="milestone-row__title">{ms.title}</span>
-        </div>
-      ))}
+      <div className="milestone-row__content">
+        {positioned.map((ms) => (
+          <div
+            key={ms.id}
+            className="milestone-row__marker"
+            style={{ left: ms.offset }}
+            title={ms.description ?? ms.title}
+            onClick={() => onMilestoneClick?.(ms)}
+          >
+            <span className="milestone-row__diamond" aria-hidden="true">
+              ◆
+            </span>
+            <span className="milestone-row__title">{ms.title}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -63,6 +63,9 @@ export default function CapacityBar({
 
   return (
     <div className="capacity-bar">
+      {/* Sticky label cell — aligns with swimlane label column */}
+      <div className="capacity-bar__label" />
+
       {weekCapacities.map((cap, i) => (
         <CapacityCell
           key={`cap-${weeks[i].year}-${weeks[i].weekNumber}`}

@@ -51,8 +51,18 @@
   top: 0;
   z-index: 20;
   user-select: none;
-  margin-left: 120px; /* align with swimlane content */
+  display: flex;
   background: var(--tl-header-bg); /* opaque when sticky */
+}
+
+.timeline-header__corner {
+  position: sticky;
+  left: 0;
+  width: 120px;
+  flex-shrink: 0;
+  background: var(--tl-label-bg);
+  z-index: 21;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* --- Year row (shown when timeline spans 2+ years) --- */
@@ -173,6 +183,7 @@
 
 .swimlane {
   position: relative;
+  display: flex;
   border-bottom: 1px solid var(--tl-border);
   background: var(--tl-swimlane-bg);
   min-height: 60px;
@@ -192,11 +203,11 @@
 }
 
 .swimlane__label {
-  position: absolute;
+  position: sticky;
   left: 0;
-  top: 0;
   width: 120px;
-  height: 100%;
+  flex-shrink: 0;
+  align-self: stretch;
   display: flex;
   align-items: flex-start;
   padding: 14px 16px;
@@ -213,7 +224,6 @@
 
 .swimlane__content {
   position: relative;
-  margin-left: 120px;
   min-height: 60px;
 }
 
@@ -502,9 +512,19 @@
 
 .capacity-bar {
   display: flex;
-  margin-left: 120px;
   border-bottom: 1px solid var(--tl-border);
   background: var(--tl-header-bg);
+  position: relative;
+}
+
+.capacity-bar__label {
+  position: sticky;
+  left: 0;
+  width: 120px;
+  flex-shrink: 0;
+  background: var(--tl-label-bg);
+  z-index: 10;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .capacity-bar__cell {
@@ -555,7 +575,7 @@
 
 .capacity-bar__tooltip {
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   padding: 10px 14px;
@@ -576,12 +596,12 @@
 .capacity-bar__tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   border-width: 5px;
   border-style: solid;
-  border-color: #1c1917 transparent transparent transparent;
+  border-color: transparent transparent #1c1917 transparent;
 }
 
 .capacity-bar__tooltip-line {
@@ -611,18 +631,18 @@
 
 .milestone-row {
   position: relative;
+  display: flex;
   height: 42px;
   border-bottom: 1px solid var(--tl-border);
   background: var(--tl-header-bg);
-  margin-left: 120px;
 }
 
 .milestone-row__label {
-  position: absolute;
-  left: -120px;
-  top: 0;
+  position: sticky;
+  left: 0;
   width: 120px;
-  height: 100%;
+  flex-shrink: 0;
+  align-self: stretch;
   display: flex;
   align-items: center;
   padding: 0 16px;
@@ -635,6 +655,11 @@
   box-sizing: border-box;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.milestone-row__content {
+  position: relative;
+  flex: 1;
 }
 
 .milestone-row__marker {

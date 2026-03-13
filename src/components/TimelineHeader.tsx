@@ -90,63 +90,69 @@ export default function TimelineHeader({
   const showTodayMarker = todayOffset >= 0 && todayOffset <= totalWidth;
 
   return (
-    <div className="timeline-header" style={{ width: totalWidth }}>
-      {/* Year row — only when timeline spans multiple years */}
-      {showYearRow && (
-        <div className="timeline-header__years">
-          {yearSpans.map((span) => (
+    <div className="timeline-header" style={{ width: totalWidth + 120 }}>
+      {/* Sticky dark corner for the label column */}
+      <div className="timeline-header__corner" />
+
+      {/* Content wrapper — sits next to the corner in the flex row */}
+      <div style={{ position: 'relative', flex: 1 }}>
+        {/* Year row — only when timeline spans multiple years */}
+        {showYearRow && (
+          <div className="timeline-header__years">
+            {yearSpans.map((span) => (
+              <div
+                key={`year-${span.year}`}
+                className="timeline-header__year"
+                style={{ width: span.widthPx }}
+              >
+                {span.year}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Month row */}
+        <div className="timeline-header__months">
+          {monthSpans.map((span, i) => (
             <div
-              key={`year-${span.year}`}
-              className="timeline-header__year"
+              key={`${span.name}-${i}`}
+              className="timeline-header__month"
               style={{ width: span.widthPx }}
             >
-              {span.year}
+              {span.name}
             </div>
           ))}
         </div>
-      )}
 
-      {/* Month row */}
-      <div className="timeline-header__months">
-        {monthSpans.map((span, i) => (
+        {/* Week row */}
+        <div className="timeline-header__weeks">
+          {weeks.map((week) => {
+            const isCurrent =
+              week.weekNumber === currentWeekInfo.weekNumber &&
+              week.year === currentWeekInfo.year;
+            return (
+              <div
+                key={`w${week.year}-${week.weekNumber}`}
+                className={
+                  'timeline-header__week' +
+                  (isCurrent ? ' timeline-header__week--current' : '')
+                }
+                style={{ width: weekWidth }}
+              >
+                {formatWeekLabel(week)}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Today marker */}
+        {showTodayMarker && (
           <div
-            key={`${span.name}-${i}`}
-            className="timeline-header__month"
-            style={{ width: span.widthPx }}
-          >
-            {span.name}
-          </div>
-        ))}
+            className="timeline-header__today-marker"
+            style={{ left: todayOffset }}
+          />
+        )}
       </div>
-
-      {/* Week row */}
-      <div className="timeline-header__weeks">
-        {weeks.map((week) => {
-          const isCurrent =
-            week.weekNumber === currentWeekInfo.weekNumber &&
-            week.year === currentWeekInfo.year;
-          return (
-            <div
-              key={`w${week.year}-${week.weekNumber}`}
-              className={
-                'timeline-header__week' +
-                (isCurrent ? ' timeline-header__week--current' : '')
-              }
-              style={{ width: weekWidth }}
-            >
-              {formatWeekLabel(week)}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Today marker */}
-      {showTodayMarker && (
-        <div
-          className="timeline-header__today-marker"
-          style={{ left: todayOffset }}
-        />
-      )}
     </div>
   );
 }

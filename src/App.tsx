@@ -281,7 +281,18 @@ export default function App() {
 
   // --- Computed timeline range ---
   const today = useMemo(() => new Date(), []);
-  const timelineStart = useMemo(() => startOfISOWeek(today), [today]);
+  const timelineStart = useMemo(() => {
+    let earliest = addWeeks(startOfISOWeek(today), -12);
+    for (const b of data.blocks) {
+      const start = parseISO(b.startDate);
+      if (start < earliest) earliest = startOfISOWeek(start);
+    }
+    for (const u of data.unavailable) {
+      const start = parseISO(u.startDate);
+      if (start < earliest) earliest = startOfISOWeek(start);
+    }
+    return earliest;
+  }, [today, data]);
   const timelineEnd = useMemo(() => {
     const defaultEnd = addWeeks(timelineStart, 52);
     if (data.blocks.length === 0 && data.unavailable.length === 0) return defaultEnd;
