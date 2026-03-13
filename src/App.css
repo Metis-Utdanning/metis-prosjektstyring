@@ -27,7 +27,7 @@ body {
   font-family: 'Sora', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 14px;
   color: #1c1917;
-  background: #fafaf9;
+  background: #F4F1EC;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -44,7 +44,7 @@ body {
   height: 100dvh; /* modern dynamic viewport */
   width: 100%;
   overflow: hidden;
-  background: #fafaf9;
+  background: #F4F1EC;
 }
 
 /* --------------------------------------------------------------------------
@@ -56,7 +56,7 @@ body {
   overflow: auto;
   position: relative;
   min-height: 0; /* allow flex child to shrink below content size */
-  background: #fafaf9;
+  background: #F4F1EC;
 }
 
 /* Custom scrollbar for a polished feel */
@@ -66,11 +66,11 @@ body {
 }
 
 .timeline-container::-webkit-scrollbar-track {
-  background: #f5f5f4;
+  background: #EDEAE5;
 }
 
 .timeline-container::-webkit-scrollbar-thumb {
-  background: #d6d3d1;
+  background: #C8C3BC;
   border-radius: 4px;
 }
 
@@ -79,7 +79,7 @@ body {
 }
 
 .timeline-container::-webkit-scrollbar-corner {
-  background: #f5f5f4;
+  background: #EDEAE5;
 }
 
 .timeline {
@@ -92,8 +92,8 @@ body {
 
 .week-detail-header {
   padding: 8px 16px;
-  background: #f5f5f4;
-  border-bottom: 1px solid #e5e5e4;
+  background: #EDEAE5;
+  border-bottom: 1px solid #E8E4DF;
   font-family: 'Sora', system-ui, sans-serif;
   font-size: 13px;
   display: flex;
@@ -197,14 +197,14 @@ body {
 
 .skeleton-toolbar {
   height: 48px;
-  background: #0c0a09;
+  background: #1E1B18;
   flex-shrink: 0;
 }
 
 .skeleton-summary {
   height: 56px;
-  background: #f5f5f4;
-  border-bottom: 1px solid #e5e5e4;
+  background: #EDEAE5;
+  border-bottom: 1px solid #E8E4DF;
   flex-shrink: 0;
 }
 
@@ -212,13 +212,13 @@ body {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background: #fafaf9;
+  background: #F4F1EC;
 }
 
 .skeleton-header {
   height: 58px;
   margin-left: 120px;
-  background: linear-gradient(180deg, #1c1917 32px, #f5f5f4 32px);
+  background: linear-gradient(180deg, #F0EDE8 32px, #EDEAE5 32px);
 }
 
 .skeleton-row {
@@ -230,7 +230,7 @@ body {
 .skeleton-label {
   width: 120px;
   flex-shrink: 0;
-  background: #1c1917;
+  background: #F0EDE8;
 }
 
 .skeleton-blocks {
@@ -244,7 +244,7 @@ body {
 .skeleton-block {
   height: 48px;
   border-radius: 8px;
-  background: #e7e5e4;
+  background: #DDD9D2;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
