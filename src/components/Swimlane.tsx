@@ -1,7 +1,7 @@
 import { useMemo, type PointerEvent as ReactPointerEvent } from 'react';
 import type { Person, Block, Unavailable, WeekInfo } from '../types/index.ts';
 import { dateToPixelOffset, parseISO } from '../utils/dates.ts';
-import { SWIMLANE_HEIGHT } from '../utils/constants.ts';
+import { SWIMLANE_HEIGHT, PALETTE } from '../utils/constants.ts';
 import BlockElement from './BlockElement.tsx';
 import CapacityBar from './CapacityBar.tsx';
 import './Timeline.css';
@@ -89,6 +89,8 @@ export default function Swimlane({
     () => blocks.filter((b) => b.person === person.id),
     [blocks, person.id],
   );
+
+  const avatarColor = personBlocks[0]?.color ?? PALETTE[(index ?? 0) % PALETTE.length];
 
   /* Filter unavailable for this person */
   const personUnavailable = useMemo(
@@ -188,7 +190,15 @@ export default function Swimlane({
         className={`swimlane${index !== undefined && index % 2 === 1 ? ' swimlane--alt' : ''}${isOverbooked ? ' swimlane--overbooked' : ''}`}
       >
         {/* Person label */}
-        <div className="swimlane__label">{person.name}</div>
+        <div className="swimlane__label">
+          <div
+            className="swimlane__avatar"
+            style={{ backgroundColor: avatarColor }}
+          >
+            {person.name.charAt(0)}
+          </div>
+          <span>{person.name}</span>
+        </div>
 
         {/* Content area */}
         <div
