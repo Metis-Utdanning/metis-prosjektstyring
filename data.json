@@ -29,16 +29,16 @@
     },
     {
       "id": "demo-2",
-      "title": "Inntak 26/27",
+      "title": "Bergen Private Gymnas",
       "person": "fredrik",
-      "startDate": "2026-03-09",
-      "endDate": "2026-05-01",
+      "startDate": "2026-03-02",
+      "endDate": "2026-07-03",
       "percent": 20,
-      "color": "#F59E0B",
+      "color": "#10B981",
       "status": "active",
-      "description": "Inntaksmodul og kontraktsending",
+      "description": "Fagdokumentasjon og rapportering",
       "links": [],
-      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedAt": "2026-03-13T20:49:46.285Z",
       "updatedBy": "fredrik"
     },
     {
