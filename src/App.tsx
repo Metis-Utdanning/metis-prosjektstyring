@@ -694,12 +694,12 @@ export default function App() {
   // --- Scroll to today on initial load ---
   const hasScrolledToToday = useRef(false);
   useEffect(() => {
-    if (hasScrolledToToday.current || !timelineRef.current) return;
+    if (isLoading || hasScrolledToToday.current || !timelineRef.current) return;
     hasScrolledToToday.current = true;
     const offset = dateToPixelOffset(new Date(), activeTimelineStart, dayWidth);
     // Place today ~200px from the left edge (instant, no animation)
     timelineRef.current.scrollLeft = Math.max(0, offset - 200);
-  }, [activeTimelineStart, dayWidth]);
+  }, [isLoading, activeTimelineStart, dayWidth]);
 
   // --- Cleanup goToToday timer on unmount ---
   useEffect(() => () => {
