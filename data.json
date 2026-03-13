@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "people": [
+    {
+      "id": "fredrik",
+      "name": "Fredrik"
+    },
+    {
+      "id": "simen",
+      "name": "Simen"
+    }
+  ],
+  "blocks": [
+    {
+      "id": "demo-1",
+      "title": "Privatistportal",
+      "person": "fredrik",
+      "startDate": "2026-03-09",
+      "endDate": "2026-04-17",
+      "percent": 80,
+      "color": "#3B82F6",
+      "status": "active",
+      "description": "Payload CMS kursmateriale-plattform",
+      "links": [
+        "https://github.com/Metis-Utdanning/metis-privatistkurs"
+      ],
+      "updatedAt": "2026-03-13T20:48:21.406Z",
+      "updatedBy": "fredrik"
+    },
+    {
+      "id": "demo-2",
+      "title": "Inntak 26/27",
+      "person": "fredrik",
+      "startDate": "2026-03-09",
+      "endDate": "2026-05-01",
+      "percent": 20,
+      "color": "#F59E0B",
+      "status": "active",
+      "description": "Inntaksmodul og kontraktsending",
+      "links": [],
+      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedBy": "fredrik"
+    },
+    {
+      "id": "demo-3",
+      "title": "Studentportal",
+      "person": "fredrik",
+      "startDate": "2026-04-28",
+      "endDate": "2026-06-05",
+      "percent": 60,
+      "color": "#10B981",
+      "status": "planned",
+      "description": "Ny-features for studentportal",
+      "links": [],
+      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedBy": "fredrik"
+    },
+    {
+      "id": "demo-4",
+      "title": "Security hardening",
+      "person": "fredrik",
+      "startDate": "2026-05-04",
+      "endDate": "2026-05-22",
+      "percent": 40,
+      "color": "#EF4444",
+      "status": "planned",
+      "description": "P0 sikkerhetsfixer",
+      "links": [],
+      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedBy": "fredrik"
+    },
+    {
+      "id": "demo-5",
+      "title": "MetisVerse",
+      "person": "simen",
+      "startDate": "2026-03-09",
+      "endDate": "2026-05-15",
+      "percent": 60,
+      "color": "#8B5CF6",
+      "status": "active",
+      "description": "MetisVerse moduler og feilretting",
+      "links": [],
+      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedBy": "simen"
+    },
+    {
+      "id": "demo-6",
+      "title": "IT-drift",
+      "person": "simen",
+      "startDate": "2026-03-09",
+      "endDate": "2026-06-26",
+      "percent": 20,
+      "color": "#06B6D4",
+      "status": "active",
+      "description": "Løpende IT-drift og support",
+      "links": [],
+      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedBy": "simen"
+    },
+    {
+      "id": "demo-7",
+      "title": "Teams Education",
+      "person": "simen",
+      "startDate": "2026-04-14",
+      "endDate": "2026-05-08",
+      "percent": 40,
+      "color": "#EC4899",
+      "status": "planned",
+      "description": "Teams Education provisioning modul",
+      "links": [],
+      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedBy": "simen"
+    },
+    {
+      "id": "demo-8",
+      "title": "HubSpot-integrasjon",
+      "person": "simen",
+      "startDate": "2026-05-18",
+      "endDate": "2026-06-12",
+      "percent": 50,
+      "color": "#F97316",
+      "status": "planned",
+      "description": "HubSpot inndata-trakt",
+      "links": [],
+      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedBy": "simen"
+    }
+  ],
+  "unavailable": [
+    {
+      "id": "demo-ferie-1",
+      "person": "fredrik",
+      "startDate": "2026-06-29",
+      "endDate": "2026-07-24",
+      "label": "Ferie"
+    },
+    {
+      "id": "demo-ferie-2",
+      "person": "simen",
+      "startDate": "2026-07-06",
+      "endDate": "2026-07-31",
+      "label": "Ferie"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "demo-ms-1",
+      "title": "Privatistportal MVP",
+      "date": "2026-04-10",
+      "description": "Første kursinnhold tilgjengelig"
+    },
+    {
+      "id": "demo-ms-2",
+      "title": "Inntak komplett",
+      "date": "2026-04-24",
+      "description": "Alle kontrakter sendt"
+    },
+    {
+      "id": "demo-ms-3",
+      "title": "Sommerlansering",
+      "date": "2026-06-12",
+      "description": "Alle hovedprosjekter i produksjon"
+    }
+  ]
+}
