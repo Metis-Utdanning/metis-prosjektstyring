@@ -98,14 +98,31 @@ export default function Swimlane({
     [layoutItems],
   );
 
-  const rowCount = maxRow + 1;
-  const blockRowHeight = 34;
-  const blockGap = 6;
-  const paddingVert = 10;
-  const contentHeight = Math.max(
-    paddingVert * 2 + rowCount * (blockRowHeight + blockGap),
-    SWIMLANE_HEIGHT * 0.4,
-  );
+  /* Height is proportional to percent: 100% = full unit height */
+  const unitHeight = SWIMLANE_HEIGHT; // reference height for 100%
+  const minBlockHeight = 22; // minimum so text is readable
+  const blockGap = 4;
+  const paddingVert = 8;
+
+  function blockHeight(percent: number): number {
+    return Math.max(Math.round((percent / 100) * unitHeight), minBlockHeight);
+  }
+
+  /* Calculate stacked content height (sum of rows considering proportional heights) */
+  const contentHeight = useMemo(() => {
+    if (layoutItems.length === 0) return SWIMLANE_HEIGHT * 0.4;
+
+    /* For each row, find the tallest block */
+    const rowHeights: number[] = [];
+    for (const { block, row } of layoutItems) {
+      const h = blockHeight(block.percent);
+      if (!rowHeights[row] || h > rowHeights[row]) {
+        rowHeights[row] = h;
+      }
+    }
+    const totalHeight = rowHeights.reduce((sum, h) => sum + h + blockGap, 0);
+    return Math.max(paddingVert * 2 + totalHeight, SWIMLANE_HEIGHT * 0.4);
+  }, [layoutItems]);
 
   /* Check for overbooking (any week > 100%) */
   const isOverbooked = useMemo(() => {
@@ -184,39 +201,57 @@ export default function Swimlane({
             );
           })}
 
-          {/* Blocks */}
+          {/* Blocks — height proportional to percent */}
           <div className="swimlane__blocks">
-            {layoutItems.map(({ block, row }) => {
-              const bLeft = dateToPixelOffset(
-                parseISO(block.startDate),
-                timelineStart,
-                dayWidth,
-              );
-              const bRight = dateToPixelOffset(
-                parseISO(block.endDate),
-                timelineStart,
-                dayWidth,
-              );
-              const bWidth = bRight - bLeft + dayWidth; // include end day
-              const bTop = paddingVert + row * (blockRowHeight + blockGap);
+            {(() => {
+              /* Precompute cumulative top offset per row */
+              const rowTops: number[] = [];
+              const rowMaxHeights: number[] = [];
+              for (const { block, row } of layoutItems) {
+                const h = blockHeight(block.percent);
+                if (rowMaxHeights[row] === undefined || h > rowMaxHeights[row]) {
+                  rowMaxHeights[row] = h;
+                }
+              }
+              let cumTop = paddingVert;
+              for (let r = 0; r <= (rowMaxHeights.length - 1); r++) {
+                rowTops[r] = cumTop;
+                cumTop += (rowMaxHeights[r] || 0) + blockGap;
+              }
 
-              return (
-                <div
-                  key={block.id}
-                  style={{ position: 'absolute', top: bTop, left: 0, right: 0 }}
-                >
-                  <BlockElement
-                    block={block}
-                    left={bLeft}
-                    width={Math.max(bWidth, 8)}
-                    height={blockRowHeight}
-                    onEdit={onEditBlock}
-                    onDragStart={onDragStart}
-                    onResizeStart={onResizeStart}
-                  />
-                </div>
-              );
-            })}
+              return layoutItems.map(({ block, row }) => {
+                const bLeft = dateToPixelOffset(
+                  parseISO(block.startDate),
+                  timelineStart,
+                  dayWidth,
+                );
+                const bRight = dateToPixelOffset(
+                  parseISO(block.endDate),
+                  timelineStart,
+                  dayWidth,
+                );
+                const bWidth = bRight - bLeft + dayWidth;
+                const bTop = rowTops[row] || paddingVert;
+                const bHeight = blockHeight(block.percent);
+
+                return (
+                  <div
+                    key={block.id}
+                    style={{ position: 'absolute', top: bTop, left: 0, right: 0 }}
+                  >
+                    <BlockElement
+                      block={block}
+                      left={bLeft}
+                      width={Math.max(bWidth, 8)}
+                      height={bHeight}
+                      onEdit={onEditBlock}
+                      onDragStart={onDragStart}
+                      onResizeStart={onResizeStart}
+                    />
+                  </div>
+                );
+              });
+            })()}
           </div>
 
           {/* Today marker in swimlane */}
