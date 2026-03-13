@@ -99,9 +99,9 @@ export default function Swimlane({
   );
 
   const rowCount = maxRow + 1;
-  const blockRowHeight = 28;
-  const blockGap = 4;
-  const paddingVert = 8;
+  const blockRowHeight = 34;
+  const blockGap = 6;
+  const paddingVert = 10;
   const contentHeight = Math.max(
     paddingVert * 2 + rowCount * (blockRowHeight + blockGap),
     SWIMLANE_HEIGHT * 0.4,

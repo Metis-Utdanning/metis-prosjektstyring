@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { CalendarData } from '../types/index.ts';
 import { getWeekBreakdown, calculateWeeklyCapacity, getCapacityColor } from '../utils/capacity.ts';
-import { getWeekInfo } from '../utils/dates.ts';
+import { getWeekInfo, formatDateShort } from '../utils/dates.ts';
 import './Dialogs.css';
 
 // ---------------------------------------------------------------------------
@@ -35,12 +35,15 @@ export function ThisWeekSummary({ data }: ThisWeekSummaryProps) {
     });
   }, [data, weekInfo]);
 
+  const dateRange = `${formatDateShort(weekInfo.startDate)} – ${formatDateShort(weekInfo.endDate)}`;
+
   return (
     <div className="week-summary">
       <div className="week-summary__header">
         <h2 className="week-summary__title">
           Denne uken (uke {weekInfo.weekNumber})
         </h2>
+        <span className="week-summary__date-range">{dateRange}</span>
       </div>
 
       <div className="week-summary__people">
@@ -49,7 +52,7 @@ export function ThisWeekSummary({ data }: ThisWeekSummaryProps) {
             <span className="week-summary__person-name">{person.name}:</span>
             <span className="week-summary__person-blocks">
               {breakdown.length === 0 ? (
-                <em>Ingen blokker</em>
+                <em>Ingen oppgaver</em>
               ) : (
                 breakdown
                   .map((entry) => `${entry.block.title} ${entry.percent}%`)

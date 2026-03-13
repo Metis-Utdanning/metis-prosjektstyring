@@ -65,24 +65,7 @@ export function Toolbar({
     return () => document.removeEventListener('pointerdown', handleClick);
   }, [dropdownOpen]);
 
-  // --- Keyboard shortcuts ---
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMeta = e.metaKey || e.ctrlKey;
-      if (isMeta && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        onUndo();
-      } else if (isMeta && e.key === 'z' && e.shiftKey) {
-        e.preventDefault();
-        onRedo();
-      } else if (isMeta && e.key === 's') {
-        e.preventDefault();
-        onSave();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onUndo, onRedo, onSave]);
+  // Keyboard shortcuts are handled globally by useKeyboard in App.tsx
 
   const handleDropdownAction = useCallback(
     (action: () => void) => {
@@ -116,6 +99,11 @@ export function Toolbar({
 
   return (
     <div className="toolbar">
+      {/* App title */}
+      <span className="toolbar__title">Kapasitetskalender</span>
+
+      <div className="toolbar__separator" />
+
       {/* Left group: Save + Add */}
       <div className="toolbar__group">
         <button
@@ -209,7 +197,7 @@ export function Toolbar({
           aria-label="Angre"
           title="Angre (Ctrl+Z)"
         >
-          ↩
+          &#8630;
         </button>
         <button
           type="button"
@@ -219,7 +207,7 @@ export function Toolbar({
           aria-label="Gjenta"
           title="Gjenta (Ctrl+Shift+Z)"
         >
-          ↪
+          &#8631;
         </button>
       </div>
 
