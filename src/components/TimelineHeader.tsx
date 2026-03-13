@@ -6,7 +6,6 @@ import {
   formatWeekLabel,
   getWeekInfo,
 } from '../utils/dates.ts';
-// WEEK_COLUMN_WIDTH available from constants if needed
 import './Timeline.css';
 
 interface TimelineHeaderProps {
@@ -20,12 +19,40 @@ interface MonthSpan {
   widthPx: number;
 }
 
+interface YearSpan {
+  year: number;
+  widthPx: number;
+}
+
 export default function TimelineHeader({
   weeks,
   dayWidth,
   timelineStart,
 }: TimelineHeaderProps) {
   const weekWidth = dayWidth * 7;
+
+  /* Group consecutive weeks by calendar year */
+  const yearSpans = useMemo<YearSpan[]>(() => {
+    if (weeks.length === 0) return [];
+    const spans: YearSpan[] = [];
+    let currentYear = weeks[0].startDate.getFullYear();
+    let currentCount = 1;
+
+    for (let i = 1; i < weeks.length; i++) {
+      const year = weeks[i].startDate.getFullYear();
+      if (year === currentYear) {
+        currentCount++;
+      } else {
+        spans.push({ year: currentYear, widthPx: currentCount * weekWidth });
+        currentYear = year;
+        currentCount = 1;
+      }
+    }
+    spans.push({ year: currentYear, widthPx: currentCount * weekWidth });
+    return spans;
+  }, [weeks, weekWidth]);
+
+  const showYearRow = yearSpans.length > 1;
 
   /* Group consecutive weeks by month name to produce month spans */
   const monthSpans = useMemo<MonthSpan[]>(() => {
@@ -64,6 +91,21 @@ export default function TimelineHeader({
 
   return (
     <div className="timeline-header" style={{ width: totalWidth }}>
+      {/* Year row — only when timeline spans multiple years */}
+      {showYearRow && (
+        <div className="timeline-header__years">
+          {yearSpans.map((span) => (
+            <div
+              key={`year-${span.year}`}
+              className="timeline-header__year"
+              style={{ width: span.widthPx }}
+            >
+              {span.year}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Month row */}
       <div className="timeline-header__months">
         {monthSpans.map((span, i) => (

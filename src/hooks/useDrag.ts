@@ -255,6 +255,9 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       // Only primary button
       if (e.button !== 0) return;
 
+      // Guard: if a drag is already active, ignore the new pointer down
+      if (dragRef.current.active) return;
+
       const el = e.currentTarget as HTMLElement;
       el.setPointerCapture(e.pointerId);
 
@@ -272,6 +275,9 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       d.deltaX = 0;
 
       // Attach global listeners (window-level for robust capture)
+      // Remove first to prevent duplicate registrations
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
       window.addEventListener('pointermove', handlePointerMove);
       window.addEventListener('pointerup', handlePointerUp);
     },

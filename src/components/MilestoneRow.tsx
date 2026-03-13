@@ -7,12 +7,14 @@ interface MilestoneRowProps {
   milestones: Milestone[];
   dayWidth: number;
   timelineStart: Date;
+  onMilestoneClick?: (ms: Milestone) => void;
 }
 
 export default function MilestoneRow({
   milestones,
   dayWidth,
   timelineStart,
+  onMilestoneClick,
 }: MilestoneRowProps) {
   const positioned = useMemo(
     () =>
@@ -32,6 +34,7 @@ export default function MilestoneRow({
           className="milestone-row__marker"
           style={{ left: ms.offset }}
           title={ms.description ?? ms.title}
+          onClick={() => onMilestoneClick?.(ms)}
         >
           <span className="milestone-row__diamond" aria-hidden="true">
             ◆

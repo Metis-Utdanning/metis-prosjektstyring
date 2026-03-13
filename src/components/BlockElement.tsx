@@ -7,6 +7,8 @@ interface BlockElementProps {
   left: number;
   width: number;
   height: number;
+  animationIndex?: number;
+  selected?: boolean;
   onEdit?: (block: Block) => void;
   onDragStart?: (e: ReactPointerEvent<HTMLDivElement>, block: Block) => void;
   onResizeStart?: (
@@ -14,6 +16,7 @@ interface BlockElementProps {
     block: Block,
     edge: 'start' | 'end',
   ) => void;
+  onContextMenu?: (e: React.MouseEvent, block: Block) => void;
 }
 
 /**
@@ -21,7 +24,12 @@ interface BlockElementProps {
  * Multiplies each RGB channel by 0.7 to get a visible border.
  */
 function darkenHex(hex: string, factor = 0.7): string {
-  const cleaned = hex.replace('#', '');
+  if (!hex || !/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(hex)) return hex;
+  let cleaned = hex.replace('#', '');
+  /* Expand shorthand hex (e.g. "f00" → "ff0000") */
+  if (cleaned.length === 3) {
+    cleaned = cleaned[0] + cleaned[0] + cleaned[1] + cleaned[1] + cleaned[2] + cleaned[2];
+  }
   const r = Math.round(parseInt(cleaned.slice(0, 2), 16) * factor);
   const g = Math.round(parseInt(cleaned.slice(2, 4), 16) * factor);
   const b = Math.round(parseInt(cleaned.slice(4, 6), 16) * factor);
@@ -33,9 +41,12 @@ export default function BlockElement({
   left,
   width,
   height,
+  animationIndex,
+  selected,
   onEdit,
   onDragStart,
   onResizeStart,
+  onContextMenu,
 }: BlockElementProps) {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -45,6 +56,8 @@ export default function BlockElement({
       : block.status === 'done'
         ? ' block--done'
         : ' block--active';
+
+  const selectedClass = selected ? ' block--selected' : '';
 
   const borderColor = darkenHex(block.color);
 
@@ -75,7 +88,7 @@ export default function BlockElement({
 
   return (
     <div
-      className={`block${statusClass}`}
+      className={`block${statusClass}${selectedClass}`}
       style={{
         left,
         width: Math.max(width, 8),
@@ -83,11 +96,16 @@ export default function BlockElement({
         top: 0,
         backgroundColor: block.color,
         borderColor,
+        animationDelay: animationIndex !== undefined ? `${animationIndex * 0.06}s` : undefined,
       }}
+      tabIndex={0}
+      role="button"
+      aria-label={`${block.title}, ${block.percent}%, ${block.status}`}
       onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerEnter={() => setShowTooltip(true)}
       onPointerLeave={() => setShowTooltip(false)}
+      onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e, block); }}
     >
       {/* Resize handle — left */}
       <div

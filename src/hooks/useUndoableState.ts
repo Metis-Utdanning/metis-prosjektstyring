@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useReducer, useCallback, useMemo } from 'react';
 import { MAX_UNDO_STEPS } from '../utils/constants.ts';
 
 export interface UndoableActions<T> {
@@ -12,55 +12,85 @@ export interface UndoableActions<T> {
   reset: (value: T) => void;
 }
 
+// ── Reducer types ──────────────────────────────────────────────
+
+interface UndoState<T> {
+  history: T[];
+  index: number;
+}
+
+type UndoAction<T> =
+  | { type: 'SET'; next: T }
+  | { type: 'UNDO' }
+  | { type: 'REDO' }
+  | { type: 'RESET'; value: T };
+
+function undoReducer<T>(state: UndoState<T>, action: UndoAction<T>): UndoState<T> {
+  switch (action.type) {
+    case 'SET': {
+      // Discard any redo-future beyond the current index, then push new value
+      const base = state.history.slice(0, state.index + 1);
+      const updated = [...base, action.next];
+      // Cap length at MAX_UNDO_STEPS
+      if (updated.length > MAX_UNDO_STEPS) {
+        updated.splice(0, updated.length - MAX_UNDO_STEPS);
+      }
+      return {
+        history: updated,
+        index: updated.length - 1,
+      };
+    }
+    case 'UNDO': {
+      if (state.index <= 0) return state;
+      return { ...state, index: state.index - 1 };
+    }
+    case 'REDO': {
+      if (state.index >= state.history.length - 1) return state;
+      return { ...state, index: state.index + 1 };
+    }
+    case 'RESET': {
+      return { history: [action.value], index: 0 };
+    }
+  }
+}
+
+// ── Hook ───────────────────────────────────────────────────────
+
 /**
  * useUndoableState — generic undo/redo hook.
  *
  * Keeps a history stack capped at MAX_UNDO_STEPS entries.
  * `setState` pushes a new snapshot, discarding any redo-future.
  * `reset` replaces the full history (useful after loading from GitHub).
+ *
+ * Uses a single `useReducer` so history and index are always updated
+ * atomically — no stale-closure bugs under rapid edits.
  */
 export function useUndoableState<T>(initial: T): UndoableActions<T> {
-  // history[0..index] = past + present, history[index+1..] = redo future
-  const [history, setHistory] = useState<T[]>([initial]);
-  const [index, setIndex] = useState(0);
+  const [{ history, index }, dispatch] = useReducer(undoReducer<T>, {
+    history: [initial],
+    index: 0,
+  });
 
   const state = history[index] as T;
 
+  // All callbacks are stable (dispatch identity never changes)
   const setState = useCallback(
-    (next: T) => {
-      setHistory((prev) => {
-        // Discard any redo-future beyond the current index
-        const base = prev.slice(0, index + 1);
-        const updated = [...base, next];
-        // Cap length
-        if (updated.length > MAX_UNDO_STEPS) {
-          updated.splice(0, updated.length - MAX_UNDO_STEPS);
-        }
-        return updated;
-      });
-      setIndex((prev) => {
-        const next = prev + 1;
-        return next >= MAX_UNDO_STEPS ? MAX_UNDO_STEPS - 1 : next;
-      });
-    },
-    [index],
+    (next: T) => dispatch({ type: 'SET', next }),
+    [],
   );
 
-  const undo = useCallback(() => {
-    setIndex((i) => Math.max(0, i - 1));
-  }, []);
+  const undo = useCallback(() => dispatch({ type: 'UNDO' }), []);
 
-  const redo = useCallback(() => {
-    setIndex((i) => Math.min(history.length - 1, i + 1));
-  }, [history.length]);
+  const redo = useCallback(() => dispatch({ type: 'REDO' }), []);
+
+  const reset = useCallback(
+    (value: T) => dispatch({ type: 'RESET', value }),
+    [],
+  );
 
   const canUndo = index > 0;
   const canRedo = index < history.length - 1;
-
-  const reset = useCallback((value: T) => {
-    setHistory([value]);
-    setIndex(0);
-  }, []);
 
   return useMemo(
     () => ({ state, setState, undo, redo, canUndo, canRedo, reset }),

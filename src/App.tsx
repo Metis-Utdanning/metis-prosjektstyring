@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { Block, Milestone, Unavailable, ViewMode, WeekInfo } from './types';
 import { PALETTE, WEEK_COLUMN_WIDTH, DAY_COLUMN_WIDTH, DEFAULT_DATA } from './utils/constants';
 import {
@@ -27,11 +27,17 @@ import { BlockDialog } from './components/BlockDialog';
 import { MilestoneDialog } from './components/MilestoneDialog';
 import { UnavailableDialog } from './components/UnavailableDialog';
 import { TokenPrompt, getStoredToken } from './components/TokenPrompt';
+import { ContextMenu } from './components/ContextMenu';
+import { PresentationDashboard } from './components/PresentationDashboard';
 
 // --- Hooks ---
 import { useCalendarData } from './hooks/useCalendarData';
 import { useKeyboard } from './hooks/useKeyboard';
 import { useDrag } from './hooks/useDrag';
+
+// --- Zoom levels ---
+type ZoomLevel = 'narrow' | 'normal' | 'wide';
+const ZOOM_FACTORS: Record<ZoomLevel, number> = { narrow: 0.6, normal: 1, wide: 1.5 };
 
 // ---------------------------------------------------------------------------
 // Demo data — shown when GitHub API is unavailable or data is empty
@@ -218,6 +224,8 @@ export default function App() {
     isSaving,
     error,
     unsavedChanges,
+    autoSaveStatus,
+    isOnline,
   } = useCalendarData(token);
 
   // Use demo data if the loaded data has no blocks (e.g. GitHub unavailable)
@@ -246,14 +254,33 @@ export default function App() {
   const [defaultPerson, setDefaultPerson] = useState<string | undefined>(undefined);
   const [defaultDate, setDefaultDate] = useState<string | undefined>(undefined);
 
+  // --- Block selection ---
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+
+  // --- Context menu ---
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    block?: Block | null;
+    personId?: string;
+    clickDate?: Date;
+  } | null>(null);
+
+  // --- Zoom ---
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(() =>
+    (localStorage.getItem('metis-zoom') as ZoomLevel) || 'normal',
+  );
+  const zoomFactor = ZOOM_FACTORS[zoomLevel];
+
   // --- Timeline ref for scrolling ---
   const timelineRef = useRef<HTMLDivElement>(null);
+  const goToTodayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // --- Computed timeline range ---
   const today = useMemo(() => new Date(), []);
   const timelineStart = useMemo(() => startOfISOWeek(today), [today]);
   const timelineEnd = useMemo(() => {
-    const defaultEnd = addWeeks(timelineStart, 26);
+    const defaultEnd = addWeeks(timelineStart, 52);
     if (data.blocks.length === 0 && data.unavailable.length === 0) return defaultEnd;
 
     let latest = defaultEnd;
@@ -277,8 +304,8 @@ export default function App() {
 
   const dayWidth = useMemo(() => {
     if (viewMode === 'week') return DAY_COLUMN_WIDTH;
-    return WEEK_COLUMN_WIDTH / 7;
-  }, [viewMode]);
+    return (WEEK_COLUMN_WIDTH * zoomFactor) / 7;
+  }, [viewMode, zoomFactor]);
 
   const activeTimelineStart = viewMode === 'week' && selectedWeek
     ? selectedWeek.startDate
@@ -394,6 +421,7 @@ export default function App() {
 
   const handleBlockClick = useCallback(
     (blockId: string) => {
+      setSelectedBlockId(blockId);
       const block = data.blocks.find((b) => b.id === blockId);
       if (block) {
         setEditingBlock(block);
@@ -402,6 +430,60 @@ export default function App() {
     },
     [data],
   );
+
+  // --- Context menu handlers ---
+  const handleBlockContextMenu = useCallback((e: React.MouseEvent, block: Block) => {
+    setContextMenu({ x: e.clientX, y: e.clientY, block });
+    setSelectedBlockId(block.id);
+  }, []);
+
+  const handleSwimlaneContextMenu = useCallback(
+    (personId: string, x: number, y: number, date: Date) => {
+      if (!isEditorMode) return;
+      setContextMenu({ x, y, personId, clickDate: date });
+    },
+    [isEditorMode],
+  );
+
+  const handleDuplicateBlock = useCallback(
+    (block: Block) => {
+      const newBlock: Block = {
+        ...block,
+        id: crypto.randomUUID(),
+        title: `${block.title} (kopi)`,
+        updatedAt: new Date().toISOString(),
+        updatedBy: 'user',
+      };
+      setData({ ...data, blocks: [...data.blocks, newBlock] });
+    },
+    [data, setData],
+  );
+
+  const handleContextDeleteBlock = useCallback(
+    (block: Block) => {
+      if (window.confirm(`Slett "${block.title}"?`)) {
+        setData({ ...data, blocks: data.blocks.filter((b) => b.id !== block.id) });
+        if (selectedBlockId === block.id) setSelectedBlockId(null);
+      }
+    },
+    [data, setData, selectedBlockId],
+  );
+
+  const handleContextNewBlock = useCallback(
+    (personId: string, date: Date) => {
+      setDefaultPerson(personId);
+      setDefaultDate(date.toISOString().slice(0, 10));
+      setEditingBlock(null);
+      setIsNewBlock(true);
+    },
+    [],
+  );
+
+  // --- Zoom handlers ---
+  const handleZoomChange = useCallback((level: ZoomLevel) => {
+    setZoomLevel(level);
+    localStorage.setItem('metis-zoom', level);
+  }, []);
 
   const { onPointerDown: dragPointerDown } = useDrag({
     onDragEnd: handleDragEnd,
@@ -465,6 +547,16 @@ export default function App() {
     if (!timelineRef.current) return;
     const offset = dateToPixelOffset(new Date(), activeTimelineStart, dayWidth);
     timelineRef.current.scrollTo({ left: Math.max(0, offset - 200), behavior: 'smooth' });
+    // Flash the today marker after scroll
+    if (goToTodayTimerRef.current) clearTimeout(goToTodayTimerRef.current);
+    goToTodayTimerRef.current = setTimeout(() => {
+      const marker = timelineRef.current?.querySelector('.timeline-header__today-marker');
+      if (marker) {
+        marker.classList.remove('timeline-header__today-marker--flash');
+        void (marker as HTMLElement).offsetWidth; // force reflow
+        marker.classList.add('timeline-header__today-marker--flash');
+      }
+    }, 400);
   }, [activeTimelineStart, dayWidth]);
 
   const handleSave = useCallback(async () => {
@@ -507,16 +599,17 @@ export default function App() {
         onSave: handleSave,
         onEscape: closeAllDialogs,
         onDelete: () => {
-          // Could delete selected block if we had selection state
+          if (!selectedBlockId) return;
+          const block = data.blocks.find((b) => b.id === selectedBlockId);
+          if (block && window.confirm(`Slett "${block.title}"?`)) {
+            setData({ ...data, blocks: data.blocks.filter((b) => b.id !== selectedBlockId) });
+            setSelectedBlockId(null);
+          }
         },
       }),
-      [undo, redo, handleSave, closeAllDialogs],
+      [undo, redo, handleSave, closeAllDialogs, selectedBlockId, data, setData],
     ),
   );
-
-  // --- Today marker ---
-  const todayOffset = dateToPixelOffset(new Date(), activeTimelineStart, dayWidth);
-  const showTodayMarker = todayOffset >= 0 && todayOffset <= totalWidth;
 
   // --- Milestone click ---
   const handleMilestoneClick = useCallback((ms: Milestone) => {
@@ -524,11 +617,56 @@ export default function App() {
     setIsNewMilestone(false);
   }, []);
 
-  // --- Loading state ---
+  // --- Swimlane right-click custom event ---
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        handleSwimlaneContextMenu(detail.personId, detail.x, detail.y, detail.date);
+      }
+    };
+    const el = timelineRef.current;
+    el?.addEventListener('swimlane-context', handler);
+    return () => el?.removeEventListener('swimlane-context', handler);
+  }, [handleSwimlaneContextMenu]);
+
+  // --- Click to deselect block ---
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest('.block') &&
+          !(e.target as HTMLElement).closest('.context-menu')) {
+        setSelectedBlockId(null);
+      }
+    };
+    document.addEventListener('pointerdown', handler);
+    return () => document.removeEventListener('pointerdown', handler);
+  }, []);
+
+  // --- Sync isPresentationMode when user exits fullscreen via Escape ---
+  useEffect(() => {
+    const handler = () => {
+      if (!document.fullscreenElement) setIsPresentationMode(false);
+    };
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  // --- Cleanup goToToday timer on unmount ---
+  useEffect(() => () => {
+    if (goToTodayTimerRef.current) clearTimeout(goToTodayTimerRef.current);
+  }, []);
+
+  // --- Loading skeleton ---
   if (isLoading) {
     return (
-      <div className="app" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <p>Laster kapasitetskalender...</p>
+      <div className="app">
+        <div className="skeleton-toolbar" />
+        <div className="skeleton-summary" />
+        <div className="skeleton-timeline">
+          <div className="skeleton-header" />
+          <div className="skeleton-row"><div className="skeleton-label" /><div className="skeleton-blocks"><div className="skeleton-block" style={{ width: '35%' }} /><div className="skeleton-block" style={{ width: '25%', animationDelay: '0.1s' }} /></div></div>
+          <div className="skeleton-row"><div className="skeleton-label" /><div className="skeleton-blocks"><div className="skeleton-block" style={{ width: '45%', animationDelay: '0.15s' }} /><div className="skeleton-block" style={{ width: '20%', animationDelay: '0.2s' }} /></div></div>
+        </div>
       </div>
     );
   }
@@ -549,18 +687,48 @@ export default function App() {
         canRedo={canRedo}
         isPresentationMode={isPresentationMode}
         error={error}
+        zoomLevel={zoomLevel}
         onSave={handleSave}
         onUndo={undo}
         onRedo={redo}
         onNewBlock={handleNewBlock}
         onNewMilestone={handleNewMilestone}
         onNewUnavailable={handleNewUnavailable}
-        onTogglePresentation={() => setIsPresentationMode((v) => !v)}
+        onTogglePresentation={() => {
+          const entering = !isPresentationMode;
+          setIsPresentationMode(entering);
+          if (entering) {
+            document.documentElement.requestFullscreen?.().catch(() => {});
+          } else {
+            document.exitFullscreen?.().catch(() => {});
+          }
+        }}
         onGoToToday={handleGoToToday}
+        onZoomChange={handleZoomChange}
       />
 
-      {/* This-week summary */}
-      <ThisWeekSummary data={data} />
+      {/* Offline banner */}
+      {!isOnline && (
+        <div className="offline-banner">
+          Offline — endringer lagres lokalt
+        </div>
+      )}
+
+      {/* Auto-save indicator */}
+      {autoSaveStatus !== 'idle' && (
+        <div className={`autosave-indicator autosave-indicator--${autoSaveStatus}`}>
+          {autoSaveStatus === 'pending' && 'Ulagrede endringer...'}
+          {autoSaveStatus === 'saving' && 'Lagrer...'}
+          {autoSaveStatus === 'saved' && 'Lagret \u2713'}
+        </div>
+      )}
+
+      {/* Capacity summary — dashboard in presentation, compact otherwise */}
+      {isPresentationMode ? (
+        <PresentationDashboard data={data} />
+      ) : (
+        <ThisWeekSummary data={data} />
+      )}
 
       {/* Week detail header */}
       {viewMode === 'week' && selectedWeek && (
@@ -602,28 +770,23 @@ export default function App() {
             </div>
           )}
 
-          {/* Today marker (global) */}
-          {showTodayMarker && (
-            <div
-              className="today-marker"
-              style={{ left: todayOffset + 120 }}
-            />
-          )}
-
           {/* Swimlanes */}
-          {data.people.map((person) => (
+          {data.people.map((person, personIndex) => (
             <Swimlane
               key={person.id}
               person={person}
+              index={personIndex}
               blocks={data.blocks}
               unavailable={data.unavailable}
               weeks={activeWeeks}
               dayWidth={dayWidth}
               timelineStart={activeTimelineStart}
+              selectedBlockId={selectedBlockId}
               onEditBlock={handleEditBlock}
               onDragStart={handleSwimlanePointerDown}
               onResizeStart={handleSwimlaneResizeStart}
               onDoubleClick={handleSwimlaneDoubleClick}
+              onBlockContextMenu={handleBlockContextMenu}
             />
           ))}
 
@@ -633,6 +796,7 @@ export default function App() {
               milestones={data.milestones}
               dayWidth={dayWidth}
               timelineStart={activeTimelineStart}
+              onMilestoneClick={handleMilestoneClick}
             />
           )}
         </div>
@@ -644,11 +808,30 @@ export default function App() {
       {/* Presentation mode exit button */}
       {isPresentationMode && (
         <button
-          onClick={() => setIsPresentationMode(false)}
+          onClick={() => {
+            setIsPresentationMode(false);
+            document.exitFullscreen?.().catch(() => {});
+          }}
           className="presentation-exit"
         >
           Avslutt presentasjon
         </button>
+      )}
+
+      {/* Context menu */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          block={contextMenu.block}
+          personId={contextMenu.personId}
+          clickDate={contextMenu.clickDate}
+          onClose={() => setContextMenu(null)}
+          onEdit={(block) => { setEditingBlock(block); setIsNewBlock(false); }}
+          onDuplicate={handleDuplicateBlock}
+          onDelete={handleContextDeleteBlock}
+          onNewBlock={handleContextNewBlock}
+        />
       )}
 
       {/* --- Dialogs --- */}

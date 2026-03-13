@@ -13,6 +13,8 @@ interface SwimlaneProps {
   weeks: WeekInfo[];
   dayWidth: number;
   timelineStart: Date;
+  index?: number;
+  selectedBlockId?: string | null;
   onEditBlock?: (block: Block) => void;
   onDragStart?: (e: ReactPointerEvent<HTMLDivElement>, block: Block) => void;
   onResizeStart?: (
@@ -21,6 +23,7 @@ interface SwimlaneProps {
     edge: 'start' | 'end',
   ) => void;
   onDoubleClick?: (personId: string, date: Date) => void;
+  onBlockContextMenu?: (e: React.MouseEvent, block: Block) => void;
 }
 
 /** Lay out blocks vertically to avoid overlapping. Returns row index per block. */
@@ -43,7 +46,7 @@ function layoutBlocks(
     let placed = -1;
     for (let r = 0; r < rows.length; r++) {
       const lastEnd = rows[r][rows[r].length - 1];
-      if (lastEnd < blockStart) {
+      if (lastEnd <= blockStart) {
         placed = r;
         break;
       }
@@ -66,10 +69,13 @@ export default function Swimlane({
   weeks,
   dayWidth,
   timelineStart,
+  index,
+  selectedBlockId,
   onEditBlock,
   onDragStart,
   onResizeStart,
   onDoubleClick,
+  onBlockContextMenu,
 }: SwimlaneProps) {
   const weekWidth = dayWidth * 7;
   const totalWidth = weeks.length * weekWidth;
@@ -154,10 +160,28 @@ export default function Swimlane({
     onDoubleClick(person.id, clickDate);
   };
 
+  /* Right-click on empty area → "New block here" */
+  const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only handle if target is the content area itself (not a block)
+    if ((e.target as HTMLElement).closest('.block')) return;
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const daysFromStart = Math.floor(x / dayWidth);
+    const clickDate = new Date(timelineStart);
+    clickDate.setDate(clickDate.getDate() + daysFromStart);
+    // Dispatch to parent via custom event or prop — we emit a DOM event
+    const event = new CustomEvent('swimlane-context', {
+      bubbles: true,
+      detail: { personId: person.id, x: e.clientX, y: e.clientY, date: clickDate },
+    });
+    e.currentTarget.dispatchEvent(event);
+  };
+
   return (
     <div>
       <div
-        className={`swimlane${isOverbooked ? ' swimlane--overbooked' : ''}`}
+        className={`swimlane${index !== undefined && index % 2 === 1 ? ' swimlane--alt' : ''}${isOverbooked ? ' swimlane--overbooked' : ''}`}
       >
         {/* Person label */}
         <div className="swimlane__label">{person.name}</div>
@@ -167,6 +191,7 @@ export default function Swimlane({
           className="swimlane__content"
           style={{ height: contentHeight, width: totalWidth }}
           onDoubleClick={handleDoubleClick}
+          onContextMenu={handleContextMenu}
         >
           {/* Week grid lines */}
           {weeks.map((week, i) => (
@@ -219,7 +244,7 @@ export default function Swimlane({
                 cumTop += (rowMaxHeights[r] || 0) + blockGap;
               }
 
-              return layoutItems.map(({ block, row }) => {
+              return layoutItems.map(({ block, row }, blockIndex) => {
                 const bLeft = dateToPixelOffset(
                   parseISO(block.startDate),
                   timelineStart,
@@ -244,9 +269,12 @@ export default function Swimlane({
                       left={bLeft}
                       width={Math.max(bWidth, 8)}
                       height={bHeight}
+                      animationIndex={(index ?? 0) * 4 + blockIndex}
+                      selected={selectedBlockId === block.id}
                       onEdit={onEditBlock}
                       onDragStart={onDragStart}
                       onResizeStart={onResizeStart}
+                      onContextMenu={onBlockContextMenu}
                     />
                   </div>
                 );

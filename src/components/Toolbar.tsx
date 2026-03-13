@@ -5,6 +5,8 @@ import './Dialogs.css';
 // Props
 // ---------------------------------------------------------------------------
 
+type ZoomLevel = 'narrow' | 'normal' | 'wide';
+
 export interface ToolbarProps {
   unsavedCount: number;
   isSaving: boolean;
@@ -12,6 +14,7 @@ export interface ToolbarProps {
   canRedo: boolean;
   isPresentationMode: boolean;
   error: string | null;
+  zoomLevel?: ZoomLevel;
   onSave: () => void;
   onUndo: () => void;
   onRedo: () => void;
@@ -20,6 +23,7 @@ export interface ToolbarProps {
   onNewUnavailable: () => void;
   onTogglePresentation: () => void;
   onGoToToday: () => void;
+  onZoomChange?: (level: ZoomLevel) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -41,6 +45,8 @@ export function Toolbar({
   onNewUnavailable,
   onTogglePresentation,
   onGoToToday,
+  zoomLevel = 'normal',
+  onZoomChange,
 }: ToolbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -182,6 +188,39 @@ export function Toolbar({
           onClick={onGoToToday}
         >
           I dag
+        </button>
+      </div>
+
+      <div className="toolbar__separator" />
+
+      {/* Zoom */}
+      <div className="toolbar__group">
+        <button
+          type="button"
+          className={`toolbar__btn toolbar__btn--icon${zoomLevel === 'narrow' ? ' toolbar__btn--active' : ''}`}
+          onClick={() => onZoomChange?.('narrow')}
+          aria-label="Smal visning"
+          title="Smal"
+        >
+          &#8722;
+        </button>
+        <button
+          type="button"
+          className={`toolbar__btn toolbar__btn--icon${zoomLevel === 'normal' ? ' toolbar__btn--active' : ''}`}
+          onClick={() => onZoomChange?.('normal')}
+          aria-label="Normal visning"
+          title="Normal"
+        >
+          &#9633;
+        </button>
+        <button
+          type="button"
+          className={`toolbar__btn toolbar__btn--icon${zoomLevel === 'wide' ? ' toolbar__btn--active' : ''}`}
+          onClick={() => onZoomChange?.('wide')}
+          aria-label="Bred visning"
+          title="Bred"
+        >
+          &#43;
         </button>
       </div>
 

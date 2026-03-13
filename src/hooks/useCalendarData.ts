@@ -93,6 +93,8 @@ function mergeById<T extends WithId>(base: T[], local: T[], remote: T[]): T[] | 
     const remoteChanged = JSON.stringify(inBase) !== JSON.stringify(inRemote);
 
     if (localChanged && remoteChanged) {
+      // Both deleted — not a real conflict
+      if (!inLocal && !inRemote) continue;
       // Both sides touched the same item — conflict
       return null;
     }
@@ -125,12 +127,14 @@ export interface UseCalendarDataReturn {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
-  save: () => Promise<void>;
+  save: () => Promise<boolean>;
   reload: () => Promise<void>;
   isLoading: boolean;
   isSaving: boolean;
   error: string | null;
   unsavedChanges: number;
+  autoSaveStatus: 'idle' | 'pending' | 'saving' | 'saved';
+  isOnline: boolean;
 }
 
 export function useCalendarData(token: string | null): UseCalendarDataReturn {
@@ -186,6 +190,14 @@ export function useCalendarData(token: string | null): UseCalendarDataReturn {
         if (!data.unavailable.some((u) => u.id === id)) count++;
       }
 
+      const basePeople = new Map(baseDataRef.current.people.map((p) => [p.id, p]));
+      for (const p of data.people) {
+        if (JSON.stringify(basePeople.get(p.id)) !== JSON.stringify(p)) count++;
+      }
+      for (const id of basePeople.keys()) {
+        if (!data.people.some((p) => p.id === id)) count++;
+      }
+
       setUnsavedChanges(Math.max(count, current !== base ? 1 : 0));
     }
   }, [data]);
@@ -236,12 +248,15 @@ export function useCalendarData(token: string | null): UseCalendarDataReturn {
   // Save
   // -----------------------------------------------------------------------
 
-  const save = useCallback(async () => {
+  const isSavingRef = useRef(false);
+
+  const save = useCallback(async (): Promise<boolean> => {
     if (!token) {
       setError('Du m\u00E5 lime inn en GitHub-token for \u00E5 lagre.');
-      return;
+      return false;
     }
 
+    isSavingRef.current = true;
     setIsSaving(true);
     setError(null);
 
@@ -251,6 +266,7 @@ export function useCalendarData(token: string | null): UseCalendarDataReturn {
       baseDataRef.current = data;
       writeCache(data);
       setUnsavedChanges(0);
+      return true;
     } catch (err) {
       if (err instanceof GitHubConflictError) {
         // Attempt auto-merge
@@ -265,6 +281,7 @@ export function useCalendarData(token: string | null): UseCalendarDataReturn {
             reset(merged);
             writeCache(merged);
             setUnsavedChanges(0);
+            return true;
           } else {
             setError(
               'Konflikt: noen andre har endret de samme blokkene. ' +
@@ -279,10 +296,66 @@ export function useCalendarData(token: string | null): UseCalendarDataReturn {
       } else {
         setError(err instanceof Error ? err.message : 'Ukjent feil ved lagring');
       }
+      return false;
     } finally {
+      isSavingRef.current = false;
       setIsSaving(false);
     }
   }, [data, token, reset]);
+
+  // -----------------------------------------------------------------------
+  // Auto-save with debounce (3s after last change)
+  // -----------------------------------------------------------------------
+
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveDoneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'pending' | 'saving' | 'saved'>('idle');
+  const saveRef = useRef(save);
+  saveRef.current = save;
+
+  useEffect(() => {
+    if (unsavedChanges === 0 || !token) {
+      setAutoSaveStatus('idle');
+      return;
+    }
+    setAutoSaveStatus('pending');
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      if (isSavingRef.current) return;
+      setAutoSaveStatus('saving');
+      saveRef.current().then((ok) => {
+        if (ok) {
+          setAutoSaveStatus('saved');
+          autoSaveDoneTimer.current = setTimeout(() => setAutoSaveStatus('idle'), 2000);
+        } else {
+          setAutoSaveStatus('idle');
+        }
+      }).catch(() => {
+        setAutoSaveStatus('idle');
+      });
+    }, 3000);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+      if (autoSaveDoneTimer.current) clearTimeout(autoSaveDoneTimer.current);
+    };
+  }, [data, unsavedChanges, token]);
+
+  // -----------------------------------------------------------------------
+  // Online/offline detection
+  // -----------------------------------------------------------------------
+
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // -----------------------------------------------------------------------
   // beforeunload warning
@@ -310,5 +383,7 @@ export function useCalendarData(token: string | null): UseCalendarDataReturn {
     isSaving,
     error,
     unsavedChanges,
+    autoSaveStatus,
+    isOnline,
   };
 }
