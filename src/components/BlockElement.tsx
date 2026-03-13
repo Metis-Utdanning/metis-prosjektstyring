@@ -17,6 +17,7 @@ interface BlockElementProps {
     edge: 'start' | 'end',
   ) => void;
   onContextMenu?: (e: React.MouseEvent, block: Block) => void;
+  onPercentChange?: (block: Block, newPercent: number) => void;
 }
 
 /**
@@ -47,6 +48,7 @@ export default function BlockElement({
   onDragStart,
   onResizeStart,
   onContextMenu,
+  onPercentChange,
 }: BlockElementProps) {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -81,6 +83,39 @@ export default function BlockElement({
       onResizeStart?.(e, block, edge);
     },
     [onResizeStart, block],
+  );
+
+  const handlePercentPointerDown = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const handle = e.currentTarget;
+      handle.setPointerCapture(e.pointerId);
+      const startY = e.clientY;
+      const startPercent = block.percent;
+      const blockEl = handle.parentElement as HTMLElement;
+      let finalPercent = startPercent;
+
+      const onMove = (ev: globalThis.PointerEvent) => {
+        const deltaY = ev.clientY - startY;
+        const deltaSteps = Math.round(deltaY / 16);
+        const raw = startPercent + deltaSteps * 10;
+        const snapped = Math.round(raw / 10) * 10;
+        finalPercent = Math.max(10, Math.min(100, snapped));
+        blockEl.style.height = `${finalPercent * 0.4}px`;
+      };
+
+      const onUp = () => {
+        handle.removeEventListener('pointermove', onMove);
+        handle.releasePointerCapture(e.pointerId);
+        blockEl.style.height = '';
+        onPercentChange?.(block, finalPercent);
+      };
+
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp, { once: true });
+    },
+    [block, onPercentChange],
   );
 
   /* If width is very narrow, show only an initial */
@@ -133,6 +168,14 @@ export default function BlockElement({
         className="block__resize-handle block__resize-handle--right"
         onPointerDown={(e) => handleResizePointerDown(e, 'end')}
       />
+
+      {/* Resize handle — bottom (vertical percent) */}
+      {onPercentChange && (
+        <div
+          className="block__resize-handle block__resize-handle--bottom"
+          onPointerDown={(e) => handlePercentPointerDown(e)}
+        />
+      )}
 
       {/* Tooltip */}
       {showTooltip && (

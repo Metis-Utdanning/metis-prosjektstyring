@@ -16,6 +16,7 @@ export interface BlockDialogProps {
   onDelete?: (blockId: string) => void;
   defaultPerson?: string;
   defaultStartDate?: string;
+  anchorY?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -66,6 +67,7 @@ export function BlockDialog({
   onDelete,
   defaultPerson,
   defaultStartDate,
+  anchorY,
 }: BlockDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -87,10 +89,20 @@ export function BlockDialog({
     if (!el) return;
     if (isOpen && !el.open) {
       el.showModal();
+      // Position near click if anchor provided
+      if (anchorY !== undefined) {
+        const maxTop = window.innerHeight - el.offsetHeight - 24;
+        const top = Math.max(24, Math.min(anchorY - 40, maxTop));
+        el.style.marginTop = `${top}px`;
+        el.style.marginBottom = 'auto';
+      } else {
+        el.style.marginTop = '';
+        el.style.marginBottom = '';
+      }
     } else if (!isOpen && el.open) {
       el.close();
     }
-  }, [isOpen]);
+  }, [isOpen, anchorY]);
 
   // --- Populate form when block/defaults change ---
   useEffect(() => {

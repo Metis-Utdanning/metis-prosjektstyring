@@ -36,8 +36,8 @@ import { useKeyboard } from './hooks/useKeyboard';
 import { useDrag } from './hooks/useDrag';
 
 // --- Zoom levels ---
-type ZoomLevel = 'narrow' | 'normal' | 'wide';
-const ZOOM_FACTORS: Record<ZoomLevel, number> = { narrow: 0.6, normal: 1, wide: 1.5 };
+type ZoomLevel = 'compact' | 'narrow' | 'normal' | 'wide' | 'detail';
+const ZOOM_FACTORS: Record<ZoomLevel, number> = { compact: 0.4, narrow: 0.6, normal: 1, wide: 1.5, detail: 3 };
 
 // ---------------------------------------------------------------------------
 // Demo data — shown when GitHub API is unavailable or data is empty
@@ -257,6 +257,9 @@ export default function App() {
   // --- Block selection ---
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
+  // --- Dialog anchor Y (for positioning near click point) ---
+  const [dialogAnchorY, setDialogAnchorY] = useState<number | undefined>(undefined);
+
   // --- Context menu ---
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -421,14 +424,10 @@ export default function App() {
 
   const handleBlockClick = useCallback(
     (blockId: string) => {
+      // Only select — dialog opening is handled by the native click via handleEditBlock
       setSelectedBlockId(blockId);
-      const block = data.blocks.find((b) => b.id === blockId);
-      if (block) {
-        setEditingBlock(block);
-        setIsNewBlock(false);
-      }
     },
-    [data],
+    [],
   );
 
   // --- Context menu handlers ---
@@ -493,11 +492,40 @@ export default function App() {
     snapToWeek: viewMode === 'overview',
   });
 
+  // --- Track last click Y for dialog positioning ---
+  const lastClickYRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { lastClickYRef.current = e.clientY; };
+    document.addEventListener('click', handler, true);
+    return () => document.removeEventListener('click', handler, true);
+  }, []);
+
   // --- Swimlane event handlers ---
   const handleEditBlock = useCallback((block: Block) => {
+    setDialogAnchorY(lastClickYRef.current);
     setEditingBlock(block);
     setIsNewBlock(false);
   }, []);
+
+  const handleEditUnavailableClick = useCallback((entry: Unavailable) => {
+    setDialogAnchorY(lastClickYRef.current);
+    setEditingUnavailable(entry);
+    setIsNewUnavailable(false);
+  }, []);
+
+  const handlePercentChange = useCallback(
+    (block: Block, newPercent: number) => {
+      setData({
+        ...data,
+        blocks: data.blocks.map((b) =>
+          b.id === block.id
+            ? { ...b, percent: newPercent, updatedAt: new Date().toISOString() }
+            : b,
+        ),
+      });
+    },
+    [data, setData],
+  );
 
   const handleSwimlanePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>, block: Block) => {
@@ -588,6 +616,7 @@ export default function App() {
     setEditingUnavailable(null);
     setIsNewUnavailable(false);
     setShowTokenPrompt(false);
+    setDialogAnchorY(undefined);
   }, []);
 
   // --- Keyboard shortcuts ---
@@ -787,6 +816,8 @@ export default function App() {
               onResizeStart={handleSwimlaneResizeStart}
               onDoubleClick={handleSwimlaneDoubleClick}
               onBlockContextMenu={handleBlockContextMenu}
+              onEditUnavailable={handleEditUnavailableClick}
+              onPercentChange={handlePercentChange}
             />
           ))}
 
@@ -841,11 +872,12 @@ export default function App() {
         block={editingBlock}
         people={data.people}
         isOpen={blockDialogOpen}
-        onClose={() => { setEditingBlock(null); setIsNewBlock(false); }}
+        onClose={() => { setEditingBlock(null); setIsNewBlock(false); setDialogAnchorY(undefined); }}
         onSave={handleSaveBlock}
         onDelete={handleDeleteBlock}
         defaultPerson={defaultPerson}
         defaultStartDate={defaultDate}
+        anchorY={dialogAnchorY}
       />
 
       {/* Milestone dialog */}
@@ -862,11 +894,12 @@ export default function App() {
         unavailable={editingUnavailable}
         people={data.people}
         isOpen={unavailableDialogOpen}
-        onClose={() => { setEditingUnavailable(null); setIsNewUnavailable(false); }}
+        onClose={() => { setEditingUnavailable(null); setIsNewUnavailable(false); setDialogAnchorY(undefined); }}
         onSave={handleSaveUnavailable}
         onDelete={handleDeleteUnavailable}
         defaultPerson={defaultPerson}
         defaultStartDate={defaultDate}
+        anchorY={dialogAnchorY}
       />
 
       {/* Token prompt */}

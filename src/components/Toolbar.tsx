@@ -5,7 +5,7 @@ import './Dialogs.css';
 // Props
 // ---------------------------------------------------------------------------
 
-type ZoomLevel = 'narrow' | 'normal' | 'wide';
+type ZoomLevel = 'compact' | 'narrow' | 'normal' | 'wide' | 'detail';
 
 export interface ToolbarProps {
   unsavedCount: number;
@@ -25,6 +25,16 @@ export interface ToolbarProps {
   onGoToToday: () => void;
   onZoomChange?: (level: ZoomLevel) => void;
 }
+
+const ZOOM_LEVELS: ZoomLevel[] = ['compact', 'narrow', 'normal', 'wide', 'detail'];
+const ZOOM_INDEX: Record<ZoomLevel, number> = { compact: 0, narrow: 1, normal: 2, wide: 3, detail: 4 };
+const ZOOM_LABELS: Record<ZoomLevel, string> = {
+  compact: 'Kompakt',
+  narrow: 'Smal',
+  normal: 'Normal',
+  wide: 'Bred',
+  detail: 'Detalj',
+};
 
 // ---------------------------------------------------------------------------
 // Component
@@ -194,34 +204,22 @@ export function Toolbar({
       <div className="toolbar__separator" />
 
       {/* Zoom */}
-      <div className="toolbar__group">
-        <button
-          type="button"
-          className={`toolbar__btn toolbar__btn--icon${zoomLevel === 'narrow' ? ' toolbar__btn--active' : ''}`}
-          onClick={() => onZoomChange?.('narrow')}
-          aria-label="Smal visning"
-          title="Smal"
-        >
-          &#8722;
-        </button>
-        <button
-          type="button"
-          className={`toolbar__btn toolbar__btn--icon${zoomLevel === 'normal' ? ' toolbar__btn--active' : ''}`}
-          onClick={() => onZoomChange?.('normal')}
-          aria-label="Normal visning"
-          title="Normal"
-        >
-          &#9633;
-        </button>
-        <button
-          type="button"
-          className={`toolbar__btn toolbar__btn--icon${zoomLevel === 'wide' ? ' toolbar__btn--active' : ''}`}
-          onClick={() => onZoomChange?.('wide')}
-          aria-label="Bred visning"
-          title="Bred"
-        >
-          &#43;
-        </button>
+      <div className="toolbar__group" style={{ gap: 6, alignItems: 'center' }}>
+        <span style={{ fontSize: 10, color: '#a8a29e', whiteSpace: 'nowrap' }}>Zoom</span>
+        <input
+          type="range"
+          min={0}
+          max={4}
+          step={1}
+          value={ZOOM_INDEX[zoomLevel]}
+          onChange={(e) => onZoomChange?.(ZOOM_LEVELS[Number(e.target.value)])}
+          className="toolbar__zoom-slider"
+          aria-label="Zoom-nivå"
+          title={ZOOM_LABELS[zoomLevel]}
+        />
+        <span style={{ fontSize: 10, color: '#d6d3d1', minWidth: 32, textAlign: 'center' }}>
+          {ZOOM_LABELS[zoomLevel]}
+        </span>
       </div>
 
       <div className="toolbar__separator" />

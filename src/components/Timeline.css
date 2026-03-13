@@ -231,6 +231,7 @@
   z-index: 1;
   border-left: 1.5px solid rgba(168, 162, 158, 0.35);
   border-right: 1.5px solid rgba(168, 162, 158, 0.35);
+  cursor: pointer;
 }
 
 .swimlane__unavailable-label {
@@ -438,6 +439,30 @@
 
 .block__resize-handle--right::after {
   right: 3px;
+}
+
+.block__resize-handle--bottom {
+  position: absolute;
+  bottom: -3px;
+  left: 10%;
+  right: 10%;
+  height: 8px;
+  width: auto;
+  top: auto;
+  cursor: ns-resize;
+}
+
+.block__resize-handle--bottom::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 2px;
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .block__tooltip {

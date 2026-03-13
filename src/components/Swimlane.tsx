@@ -24,6 +24,8 @@ interface SwimlaneProps {
   ) => void;
   onDoubleClick?: (personId: string, date: Date) => void;
   onBlockContextMenu?: (e: React.MouseEvent, block: Block) => void;
+  onEditUnavailable?: (unavailable: Unavailable) => void;
+  onPercentChange?: (block: Block, newPercent: number) => void;
 }
 
 /** Lay out blocks vertically to avoid overlapping. Returns row index per block. */
@@ -76,6 +78,8 @@ export default function Swimlane({
   onResizeStart,
   onDoubleClick,
   onBlockContextMenu,
+  onEditUnavailable,
+  onPercentChange,
 }: SwimlaneProps) {
   const weekWidth = dayWidth * 7;
   const totalWidth = weeks.length * weekWidth;
@@ -220,6 +224,10 @@ export default function Swimlane({
                 key={u.id}
                 className="swimlane__unavailable"
                 style={{ left: uLeft, width: Math.max(uWidth, dayWidth) }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditUnavailable?.(u);
+                }}
               >
                 <span className="swimlane__unavailable-label">{u.label}</span>
               </div>
@@ -275,6 +283,7 @@ export default function Swimlane({
                       onDragStart={onDragStart}
                       onResizeStart={onResizeStart}
                       onContextMenu={onBlockContextMenu}
+                      onPercentChange={onPercentChange}
                     />
                   </div>
                 );

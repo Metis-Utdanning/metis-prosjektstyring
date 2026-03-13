@@ -120,6 +120,7 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
         d.element.style.opacity = '0.5';
         d.element.style.zIndex = '1000';
         d.element.style.pointerEvents = 'none';
+        d.element.style.transition = 'none'; // disable transitions during drag
       }
     }
 
@@ -180,6 +181,7 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       el.style.pointerEvents = '';
       el.style.transform = '';
       el.style.width = '';
+      el.style.transition = '';
     }
 
     // Reset React state
@@ -258,7 +260,12 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       // Guard: if a drag is already active, ignore the new pointer down
       if (dragRef.current.active) return;
 
-      const el = e.currentTarget as HTMLElement;
+      let el = e.currentTarget as HTMLElement;
+      // For resize handles, target the parent .block element
+      if (mode !== 'move') {
+        const blockEl = el.closest('.block') as HTMLElement | null;
+        if (blockEl) el = blockEl;
+      }
       el.setPointerCapture(e.pointerId);
 
       // Initialise drag ref
