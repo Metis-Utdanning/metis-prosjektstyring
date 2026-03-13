@@ -807,16 +807,19 @@ export default function App() {
           {/* Week-view day headers */}
           {viewMode === 'week' && selectedWeek && (
             <div className="timeline-header" style={{ width: totalWidth }}>
-              <div className="timeline-header__weeks">
-                {getWeekdayDates(selectedWeek).map((day) => (
-                  <div
-                    key={day.toISOString()}
-                    className="timeline-header__week"
-                    style={{ width: DAY_COLUMN_WIDTH }}
-                  >
-                    {formatDateShort(day)}
-                  </div>
-                ))}
+              <div className="timeline-header__corner" />
+              <div style={{ position: 'relative', flex: 1 }}>
+                <div className="timeline-header__weeks">
+                  {getWeekdayDates(selectedWeek).map((day) => (
+                    <div
+                      key={day.toISOString()}
+                      className="timeline-header__week"
+                      style={{ width: DAY_COLUMN_WIDTH }}
+                    >
+                      {formatDateShort(day)}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

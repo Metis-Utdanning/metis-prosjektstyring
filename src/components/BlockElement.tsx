@@ -1,5 +1,6 @@
 import { useState, useCallback, type PointerEvent as ReactPointerEvent } from 'react';
 import type { Block } from '../types/index.ts';
+import { SWIMLANE_HEIGHT } from '../utils/constants.ts';
 import './Timeline.css';
 
 interface BlockElementProps {
@@ -96,24 +97,33 @@ export default function BlockElement({
       const blockEl = handle.parentElement as HTMLElement;
       let finalPercent = startPercent;
 
+      const minBlockHeight = 22;
+      const calcHeight = (pct: number) =>
+        Math.max(Math.round((pct / 100) * SWIMLANE_HEIGHT), minBlockHeight);
+
       const onMove = (ev: globalThis.PointerEvent) => {
         const deltaY = ev.clientY - startY;
         const deltaSteps = Math.round(deltaY / 16);
         const raw = startPercent + deltaSteps * 10;
         const snapped = Math.round(raw / 10) * 10;
         finalPercent = Math.max(10, Math.min(100, snapped));
-        blockEl.style.height = `${finalPercent * 0.4}px`;
+        blockEl.style.height = `${calcHeight(finalPercent)}px`;
       };
 
-      const onUp = () => {
+      const cleanup = () => {
         handle.removeEventListener('pointermove', onMove);
-        handle.releasePointerCapture(e.pointerId);
+        handle.removeEventListener('pointerup', onUpHandler);
+        handle.removeEventListener('pointercancel', cleanup);
+        try { handle.releasePointerCapture(e.pointerId); } catch { /* already released */ }
         blockEl.style.height = '';
         onPercentChange?.(block, finalPercent);
       };
 
+      const onUpHandler = () => cleanup();
+
       handle.addEventListener('pointermove', onMove);
-      handle.addEventListener('pointerup', onUp, { once: true });
+      handle.addEventListener('pointerup', onUpHandler, { once: true });
+      handle.addEventListener('pointercancel', cleanup, { once: true });
     },
     [block, onPercentChange],
   );

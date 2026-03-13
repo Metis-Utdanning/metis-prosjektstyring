@@ -48,7 +48,7 @@ function layoutBlocks(
     let placed = -1;
     for (let r = 0; r < rows.length; r++) {
       const lastEnd = rows[r][rows[r].length - 1];
-      if (lastEnd <= blockStart) {
+      if (lastEnd < blockStart) {
         placed = r;
         break;
       }
@@ -280,7 +280,7 @@ export default function Swimlane({
                 return (
                   <div
                     key={block.id}
-                    style={{ position: 'absolute', top: bTop, left: 0, right: 0 }}
+                    style={{ position: 'absolute', top: bTop, left: 0 }}
                   >
                     <BlockElement
                       block={block}

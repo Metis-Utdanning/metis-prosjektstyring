@@ -117,10 +117,8 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       setDragBlockId(d.blockId);
 
       if (d.element) {
-        d.element.style.opacity = '0.5';
-        d.element.style.zIndex = '1000';
+        d.element.classList.add('block--dragging');
         d.element.style.pointerEvents = 'none';
-        d.element.style.transition = 'none'; // disable transitions during drag
       }
     }
 
@@ -133,8 +131,8 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       const deltaDays = pxToDays(dx, dw);
 
       if (mode === 'move') {
-        // Translate the whole block
-        d.element.style.transform = `translateX(${deltaDays * dw}px)`;
+        // Translate the whole block (include lift for drag feel)
+        d.element.style.transform = `translateX(${deltaDays * dw}px) translateY(-3px)`;
       } else if (mode === 'resize-end') {
         // Widen/shrink to the right by changing scaleX relative to current width
         const origDuration = differenceInCalendarDays(d.currentEnd, d.currentStart) + 1;
@@ -176,15 +174,10 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
     if (el) {
       try { el.releasePointerCapture(e.pointerId); } catch { /* already released */ }
       // Restore element styles
-      el.style.opacity = '';
-      el.style.zIndex = '';
+      el.classList.remove('block--dragging');
       el.style.pointerEvents = '';
       el.style.transform = '';
-      el.style.transition = '';
       // Only clear width for resize modes (where we modified it during drag).
-      // Clearing it for move mode removes React's inline width, and React
-      // won't re-apply it if the value hasn't changed — causing the block
-      // to collapse to content size.
       if (mode !== 'move') {
         el.style.width = '';
       }
