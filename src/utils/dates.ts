@@ -66,7 +66,7 @@ export function formatDateShort(date: Date): string {
 }
 
 export function formatWeekLabel(week: WeekInfo): string {
-  return `u${week.weekNumber}`;
+  return `Uke ${week.weekNumber}`;
 }
 
 export function formatMonthYear(date: Date): string {

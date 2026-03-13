@@ -199,6 +199,16 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       return;
     }
 
+    // Suppress the native click event that follows a completed drag
+    // (otherwise it opens the block editor dialog)
+    const eatClick = (ev: MouseEvent) => {
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+      ev.preventDefault();
+    };
+    window.addEventListener('click', eatClick, { capture: true, once: true });
+    setTimeout(() => window.removeEventListener('click', eatClick, true), 200);
+
     // Calculate final dates
     const { dayWidth: dw, snapToWeek: doSnap = false } = optionsRef.current;
     const deltaDays = pxToDays(deltaX, dw);
