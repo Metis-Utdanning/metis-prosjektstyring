@@ -17,14 +17,14 @@
       "person": "fredrik",
       "startDate": "2026-03-09",
       "endDate": "2026-03-30",
-      "percent": 100,
+      "percent": 80,
       "color": "#3B82F6",
       "status": "active",
       "description": "Payload CMS kursmateriale-plattform",
       "links": [
         "https://github.com/Metis-Utdanning/metis-privatistkurs"
       ],
-      "updatedAt": "2026-03-13T20:49:02.044Z",
+      "updatedAt": "2026-03-13T20:49:05.814Z",
       "updatedBy": "fredrik"
     },
     {
