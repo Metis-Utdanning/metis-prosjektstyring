@@ -1,7 +1,7 @@
 export const PALETTE = [
-  '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-  '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
-  '#14B8A6', '#A855F7',
+  '#6B8ADB', '#5BA88C', '#D4A853', '#C96B6B', '#8B7BC7',
+  '#C4789A', '#6B9EC7', '#8FB85A', '#D4885A', '#7B7BD5',
+  '#5BA8A0', '#9B7BC7',
 ];
 
 export const GITHUB_OWNER = 'Metis-Utdanning';
