@@ -131,10 +131,13 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       const deltaDays = pxToDays(dx, dw);
 
       if (mode === 'move') {
-        // Snap visual position to weeks in overview mode so block doesn't jump on release
+        // Snap visual position to match the exact same logic as pointerup (startOfISOWeek)
         let visualDays = deltaDays;
         if (optionsRef.current.snapToWeek) {
-          visualDays = Math.round(deltaDays / 7) * 7;
+          // Calculate which Monday we'd land on — same as startOfISOWeek(addDays(start, delta))
+          const dow = (d.currentStart.getDay() + 6) % 7; // 0=Mon..6=Sun
+          const targetDow = ((dow + deltaDays) % 7 + 7) % 7;
+          visualDays = deltaDays - targetDow;
         }
         d.element.style.transform = `translateX(${visualDays * dw}px) translateY(-3px)`;
       } else if (mode === 'resize-end') {
