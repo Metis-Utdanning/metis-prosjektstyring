@@ -61,8 +61,10 @@ export function Toolbar({
   onZoomChange,
 }: ToolbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number } | null>(null);
   const [showError, setShowError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownBtnRef = useRef<HTMLButtonElement>(null);
 
   // --- Sync error visibility ---
   useEffect(() => {
@@ -158,14 +160,21 @@ export function Toolbar({
           <button
             type="button"
             className="toolbar__btn"
-            onClick={() => setDropdownOpen((prev) => !prev)}
+            ref={dropdownBtnRef}
+            onClick={() => {
+              if (!dropdownOpen && dropdownBtnRef.current) {
+                const rect = dropdownBtnRef.current.getBoundingClientRect();
+                setDropdownPos({ top: rect.bottom + 6, left: rect.left });
+              }
+              setDropdownOpen((prev) => !prev);
+            }}
             aria-haspopup="true"
             aria-expanded={dropdownOpen}
           >
             + Ny
           </button>
-          {dropdownOpen && (
-            <div className="toolbar__dropdown">
+          {dropdownOpen && dropdownPos && (
+            <div className="toolbar__dropdown" style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left }}>
               <button
                 type="button"
                 className="toolbar__dropdown-item"

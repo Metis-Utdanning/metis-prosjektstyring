@@ -528,7 +528,7 @@
   line-height: 1.6;
   border-radius: 8px;
   white-space: nowrap;
-  z-index: 100;
+  z-index: 200;
   pointer-events: none;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.22),

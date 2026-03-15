@@ -562,9 +562,6 @@
 }
 
 .toolbar__dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
   background: #1c1917;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;

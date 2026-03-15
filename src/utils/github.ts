@@ -75,7 +75,7 @@ async function fetchViaApi(token: string): Promise<FetchResult> {
   }
 
   const json = (await res.json()) as { content: string; sha: string };
-  const decoded = atob(json.content.replace(/\n/g, ''));
+  const decoded = decodeURIComponent(escape(atob(json.content.replace(/\n/g, ''))));
   const data = JSON.parse(decoded) as CalendarData;
   return { data, sha: json.sha };
 }
@@ -109,13 +109,8 @@ export async function saveCalendarData(
   sha: string | null,
   token: string,
 ): Promise<string> {
-  const jsonStr = JSON.stringify(data, null, 2);
-  const bytes = new TextEncoder().encode(jsonStr);
-  let binary = '';
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-  const content = btoa(binary);
+  // Use the standard UTF-8 safe base64 encoding pattern
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
 
   const body: Record<string, unknown> = {
     message: `Oppdater kapasitetsdata (${new Date().toLocaleString('nb-NO')})`,
