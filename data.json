@@ -113,14 +113,14 @@
       "id": "a59b50f5-21bc-46f2-8810-25e5ba93f25b",
       "title": "Inntaksmodul",
       "person": "fredrik",
-      "startDate": "2026-03-23",
-      "endDate": "2026-04-06",
+      "startDate": "2026-03-30",
+      "endDate": "2026-04-13",
       "percent": 100,
       "color": "#6B8ADB",
       "status": "active",
       "description": "SÃ¸rge for fungerende inntaksmodul i MetisVerse, og solid overfÃ¸ring og datakvalitets-kontroll fra hubspot til MetisDB",
       "links": [],
-      "updatedAt": "2026-03-15T20:36:13.655Z",
+      "updatedAt": "2026-03-15T20:36:18.748Z",
       "updatedBy": "fredrik"
     }
   ],
