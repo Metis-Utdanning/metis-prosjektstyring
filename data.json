@@ -113,14 +113,14 @@
       "id": "41191373-8b7f-4208-9fb7-922e9aec3d07",
       "title": "Kurs-modul til Privatist",
       "person": "fredrik",
-      "startDate": "2026-03-23",
-      "endDate": "2026-04-11",
+      "startDate": "2026-03-16",
+      "endDate": "2026-04-04",
       "percent": 80,
       "color": "#5BA8A0",
       "status": "planned",
       "description": "Fullstendig erstatning av teams-rom for privatist: Kursmodul med filopplasting. Bygget inn som parallell frontend til minside.",
       "links": [],
-      "updatedAt": "2026-03-15T20:51:37.247Z",
+      "updatedAt": "2026-03-15T20:51:42.299Z",
       "updatedBy": "fredrik"
     }
   ],
