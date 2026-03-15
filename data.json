@@ -54,20 +54,6 @@
       "updatedBy": "fredrik"
     },
     {
-      "id": "demo-5",
-      "title": "MetisVerse",
-      "person": "simen",
-      "startDate": "2026-03-09",
-      "endDate": "2026-05-15",
-      "percent": 60,
-      "color": "#8B5CF6",
-      "status": "active",
-      "description": "MetisVerse moduler og feilretting",
-      "links": [],
-      "updatedAt": "2026-03-13T10:00:00Z",
-      "updatedBy": "simen"
-    },
-    {
       "id": "demo-6",
       "title": "IT-drift",
       "person": "simen",
