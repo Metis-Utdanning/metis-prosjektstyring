@@ -122,6 +122,20 @@
       "links": [],
       "updatedAt": "2026-03-15T21:03:40.560Z",
       "updatedBy": "fredrik"
+    },
+    {
+      "id": "8f2c537c-4c14-449d-bba5-162dc241bd3e",
+      "title": "Metisverse - Inntak",
+      "person": "simen",
+      "startDate": "2026-03-16",
+      "endDate": "2026-04-03",
+      "percent": 50,
+      "color": "#6B9EC7",
+      "status": "active",
+      "description": "Fungerende inntaksmodul og kontraktsmotor",
+      "links": [],
+      "updatedAt": "2026-03-15T21:08:47.132Z",
+      "updatedBy": "simen"
     }
   ],
   "unavailable": [
