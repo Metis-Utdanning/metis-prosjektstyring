@@ -909,6 +909,11 @@ export default function App() {
           onDuplicate={handleDuplicateBlock}
           onDelete={handleContextDeleteBlock}
           onNewBlock={handleContextNewBlock}
+          onNewMilestone={(date) => {
+            setEditingMilestone(null);
+            setIsNewMilestone(true);
+            setDefaultDate(format(date, 'yyyy-MM-dd'));
+          }}
         />
       )}
 
@@ -934,6 +939,7 @@ export default function App() {
         onClose={() => { setEditingMilestone(null); setIsNewMilestone(false); }}
         onSave={handleSaveMilestone}
         onDelete={handleDeleteMilestone}
+        defaultDate={defaultDate}
       />
 
       {/* Unavailable dialog */}

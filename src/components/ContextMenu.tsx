@@ -13,6 +13,7 @@ interface ContextMenuProps {
   onDuplicate?: (block: Block) => void;
   onDelete?: (block: Block) => void;
   onNewBlock?: (personId: string, date: Date) => void;
+  onNewMilestone?: (date: Date) => void;
 }
 
 export function ContextMenu({
@@ -26,6 +27,7 @@ export function ContextMenu({
   onDuplicate,
   onDelete,
   onNewBlock,
+  onNewMilestone,
 }: ContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -84,12 +86,20 @@ export function ContextMenu({
           </button>
         </>
       ) : personId && clickDate ? (
-        <button
-          className="context-menu__item"
-          onClick={() => action(() => onNewBlock?.(personId, clickDate))}
-        >
-          Ny blokk her
-        </button>
+        <>
+          <button
+            className="context-menu__item"
+            onClick={() => action(() => onNewBlock?.(personId, clickDate))}
+          >
+            Ny blokk her
+          </button>
+          <button
+            className="context-menu__item"
+            onClick={() => action(() => onNewMilestone?.(clickDate))}
+          >
+            Ny milepæl her
+          </button>
+        </>
       ) : null}
     </div>
   );
