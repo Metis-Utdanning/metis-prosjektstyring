@@ -110,18 +110,18 @@
       "updatedBy": "fredrik"
     },
     {
-      "id": "b572b0dc-e8f4-4b6c-b548-166b276d93ab",
-      "title": "Teams Education (kopi)",
-      "person": "simen",
+      "id": "41191373-8b7f-4208-9fb7-922e9aec3d07",
+      "title": "Kurs-modul til Privatist",
+      "person": "fredrik",
       "startDate": "2026-03-23",
-      "endDate": "2026-04-16",
-      "percent": 40,
-      "color": "#EC4899",
+      "endDate": "2026-04-11",
+      "percent": 50,
+      "color": "#8FB85A",
       "status": "planned",
-      "description": "Teams Education provisioning modul",
+      "description": "Fullstendig erstatning av teams-rom for privatist: Kursmodul med filopplasting. Bygget inn som parallell frontend til minside.",
       "links": [],
-      "updatedAt": "2026-03-15T20:46:58.035Z",
-      "updatedBy": "user"
+      "updatedAt": "2026-03-15T20:50:34.100Z",
+      "updatedBy": "fredrik"
     }
   ],
   "unavailable": [
