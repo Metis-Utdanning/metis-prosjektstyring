@@ -76,7 +76,7 @@
       "percent": 20,
       "color": "#06B6D4",
       "status": "active",
-      "description": "LÃÂ¸pende IT-drift og support",
+      "description": "LÃÂÃÂ¸pende IT-drift og support",
       "links": [],
       "updatedAt": "2026-03-13T10:00:00Z",
       "updatedBy": "simen"
@@ -115,12 +115,12 @@
       "person": "fredrik",
       "startDate": "2026-03-16",
       "endDate": "2026-03-23",
-      "percent": 100,
+      "percent": 80,
       "color": "#6B8ADB",
       "status": "active",
-      "description": "SÃ¸rge for fungerende inntaksmodul i MetisVerse, og solid overfÃ¸ring og datakvalitets-kontroll fra hubspot til MetisDB",
+      "description": "SÃÂ¸rge for fungerende inntaksmodul i MetisVerse, og solid overfÃÂ¸ring og datakvalitets-kontroll fra hubspot til MetisDB",
       "links": [],
-      "updatedAt": "2026-03-15T20:37:46.987Z",
+      "updatedAt": "2026-03-15T20:45:38.144Z",
       "updatedBy": "fredrik"
     }
   ],
@@ -145,7 +145,7 @@
       "id": "demo-ms-1",
       "title": "Privatistportal MVP",
       "date": "2026-04-10",
-      "description": "FÃÂ¸rste kursinnhold tilgjengelig"
+      "description": "FÃÂÃÂ¸rste kursinnhold tilgjengelig"
     },
     {
       "id": "demo-ms-2",
