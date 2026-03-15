@@ -123,8 +123,12 @@ export function BlockDialog({
       setTitle('');
       setPerson(defaultPerson ?? people[0]?.id ?? '');
       setStatus('planned');
-      setStartDate(defaultStartDate ?? todayISO());
-      setEndDate(twoWeeksLaterISO());
+      const start = defaultStartDate ?? todayISO();
+      setStartDate(start);
+      // End date = 2 weeks after start date (not 2 weeks from today)
+      const startD = new Date(start);
+      startD.setDate(startD.getDate() + 14);
+      setEndDate(startD.toISOString().slice(0, 10));
       setPercent(50);
       setColor(PALETTE[0]!);
       setDescription('');
