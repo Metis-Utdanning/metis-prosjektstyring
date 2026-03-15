@@ -92,7 +92,8 @@ export default function BlockElement({
   const borderColor = darkenHex(block.color);
   const textColor = getTextColor(block.color);
 
-  const handleClick = useCallback(() => {
+  // Single-click selects, double-click edits (standard behavior)
+  const handleDoubleClick = useCallback(() => {
     onEdit?.(block);
   }, [onEdit, block]);
 
@@ -194,7 +195,7 @@ export default function BlockElement({
       tabIndex={0}
       role="button"
       aria-label={`${block.title}, ${block.percent}%, ${block.status}`}
-      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
       onPointerDown={handlePointerDown}
       onPointerEnter={() => setShowTooltip(true)}
       onPointerLeave={() => setShowTooltip(false)}
