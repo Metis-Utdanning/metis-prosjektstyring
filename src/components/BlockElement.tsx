@@ -21,6 +21,20 @@ interface BlockElementProps {
   onPercentChange?: (block: Block, newPercent: number) => void;
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  planned: 'Planlagt',
+  active: 'Aktiv',
+  done: 'Ferdig',
+};
+
+const MONTHS_NO = ['jan.', 'feb.', 'mars', 'apr.', 'mai', 'juni',
+  'juli', 'aug.', 'sep.', 'okt.', 'nov.', 'des.'];
+
+function formatDateNorwegian(isoDate: string): string {
+  const [y, m, d] = isoDate.split('-');
+  return `${parseInt(d)}. ${MONTHS_NO[parseInt(m) - 1]} ${y}`;
+}
+
 /**
  * Determine whether text on a given background should be dark or light.
  * Uses relative luminance to pick the best contrast.
@@ -109,19 +123,24 @@ export default function BlockElement({
       const startY = e.clientY;
       const startPercent = block.percent;
       const blockEl = handle.parentElement as HTMLElement;
+      const percentEl = blockEl.querySelector('.block__percent') as HTMLElement | null;
       let finalPercent = startPercent;
+      let didMove = false;
 
       const minBlockHeight = 22;
       const calcHeight = (pct: number) =>
         Math.max(Math.round((pct / 100) * SWIMLANE_HEIGHT), minBlockHeight);
 
       const onMove = (ev: globalThis.PointerEvent) => {
+        didMove = true;
         const deltaY = ev.clientY - startY;
         const deltaSteps = Math.round(deltaY / 16);
         const raw = startPercent + deltaSteps * 10;
         const snapped = Math.round(raw / 10) * 10;
         finalPercent = Math.max(10, Math.min(100, snapped));
         blockEl.style.height = `${calcHeight(finalPercent)}px`;
+        // Show real-time percent during drag
+        if (percentEl) percentEl.textContent = `${finalPercent}%`;
       };
 
       const cleanup = () => {
@@ -130,7 +149,20 @@ export default function BlockElement({
         handle.removeEventListener('pointercancel', cleanup);
         try { handle.releasePointerCapture(e.pointerId); } catch { /* already released */ }
         blockEl.style.height = '';
-        onPercentChange?.(block, finalPercent);
+        // Restore original text (React will update it after state change)
+        if (percentEl) percentEl.textContent = `${finalPercent}%`;
+
+        if (didMove) {
+          onPercentChange?.(block, finalPercent);
+          // Eat the click event that follows pointerup to prevent dialog from opening
+          const eatClick = (ev: MouseEvent) => {
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+            ev.preventDefault();
+          };
+          window.addEventListener('click', eatClick, { capture: true, once: true });
+          setTimeout(() => window.removeEventListener('click', eatClick, true), 200);
+        }
       };
 
       const onUpHandler = () => cleanup();
@@ -165,7 +197,7 @@ export default function BlockElement({
       onPointerDown={handlePointerDown}
       onPointerEnter={() => setShowTooltip(true)}
       onPointerLeave={() => setShowTooltip(false)}
-      onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e, block); }}
+      onContextMenu={(e) => { e.preventDefault(); setShowTooltip(false); onContextMenu?.(e, block); }}
     >
       {/* Resize handle — left */}
       <div
@@ -207,11 +239,11 @@ export default function BlockElement({
         <div className="block__tooltip">
           <strong>{block.title}</strong>
           <br />
-          {block.startDate} — {block.endDate}
+          {formatDateNorwegian(block.startDate)} – {formatDateNorwegian(block.endDate)}
           <br />
           Allokering: {block.percent}%
           <br />
-          Status: {block.status}
+          Status: {STATUS_LABELS[block.status] ?? block.status}
           {block.description && (
             <>
               <br />

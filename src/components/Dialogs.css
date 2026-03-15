@@ -65,6 +65,34 @@
   letter-spacing: -0.02em;
 }
 
+.dialog__close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: transparent;
+  color: #a8a29e;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s ease, color 0.12s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.dialog__close:hover {
+  background: #EDEAE5;
+  color: #1c1917;
+}
+
+.dialog__close:focus-visible {
+  outline: 2px solid #4F46E5;
+  outline-offset: 2px;
+}
+
 .dialog__body {
   padding: 18px 22px;
   display: flex;

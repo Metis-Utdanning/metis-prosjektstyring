@@ -56,7 +56,7 @@ const DEMO_DATA: CalendarData = {
       startDate: '2026-03-16',
       endDate: '2026-04-24',
       percent: 80,
-      color: '#3B82F6',
+      color: '#6B8ADB',
       status: 'active',
       description: 'Payload CMS kursmateriale-plattform',
       links: ['https://github.com/Metis-Utdanning/metis-privatistkurs'],
@@ -70,7 +70,7 @@ const DEMO_DATA: CalendarData = {
       startDate: '2026-03-09',
       endDate: '2026-05-01',
       percent: 20,
-      color: '#F59E0B',
+      color: '#D4A853',
       status: 'active',
       description: 'Inntaksmodul og kontraktsending',
       links: [],
@@ -84,7 +84,7 @@ const DEMO_DATA: CalendarData = {
       startDate: '2026-04-28',
       endDate: '2026-06-05',
       percent: 60,
-      color: '#10B981',
+      color: '#5BA88C',
       status: 'planned',
       description: 'Ny-features for studentportal',
       links: [],
@@ -98,7 +98,7 @@ const DEMO_DATA: CalendarData = {
       startDate: '2026-05-04',
       endDate: '2026-05-22',
       percent: 40,
-      color: '#EF4444',
+      color: '#C96B6B',
       status: 'planned',
       description: 'P0 sikkerhetsfixer',
       links: [],
@@ -112,7 +112,7 @@ const DEMO_DATA: CalendarData = {
       startDate: '2026-03-09',
       endDate: '2026-05-15',
       percent: 60,
-      color: '#8B5CF6',
+      color: '#8B7BC7',
       status: 'active',
       description: 'MetisVerse moduler og feilretting',
       links: [],
@@ -126,7 +126,7 @@ const DEMO_DATA: CalendarData = {
       startDate: '2026-03-09',
       endDate: '2026-06-26',
       percent: 20,
-      color: '#06B6D4',
+      color: '#6B9EC7',
       status: 'active',
       description: 'Løpende IT-drift og support',
       links: [],
@@ -140,7 +140,7 @@ const DEMO_DATA: CalendarData = {
       startDate: '2026-04-14',
       endDate: '2026-05-08',
       percent: 40,
-      color: '#EC4899',
+      color: '#C4789A',
       status: 'planned',
       description: 'Teams Education provisioning modul',
       links: [],
@@ -154,7 +154,7 @@ const DEMO_DATA: CalendarData = {
       startDate: '2026-05-18',
       endDate: '2026-06-12',
       percent: 50,
-      color: '#F97316',
+      color: '#D4885A',
       status: 'planned',
       description: 'HubSpot inndata-trakt',
       links: [],
@@ -490,11 +490,29 @@ export default function App() {
     [],
   );
 
-  // --- Zoom handlers ---
+  // --- Zoom handlers (preserve scroll position) ---
   const handleZoomChange = useCallback((level: ZoomLevel) => {
+    const container = timelineRef.current;
+    let centerDate: Date | null = null;
+    if (container) {
+      const centerX = container.scrollLeft + container.clientWidth / 2 - 120;
+      const oldDayWidth = (WEEK_COLUMN_WIDTH * ZOOM_FACTORS[zoomLevel]) / 7;
+      const daysFromStart = centerX / oldDayWidth;
+      centerDate = addDays(activeTimelineStart, Math.round(daysFromStart));
+    }
+
     setZoomLevel(level);
     localStorage.setItem('metis-zoom', level);
-  }, []);
+
+    if (container && centerDate) {
+      const savedDate = centerDate;
+      requestAnimationFrame(() => {
+        const newDayWidth = (WEEK_COLUMN_WIDTH * ZOOM_FACTORS[level]) / 7;
+        const newOffset = dateToPixelOffset(savedDate, activeTimelineStart, newDayWidth);
+        container.scrollLeft = Math.max(0, newOffset - container.clientWidth / 2 + 120);
+      });
+    }
+  }, [zoomLevel, activeTimelineStart]);
 
   const { onPointerDown: dragPointerDown } = useDrag({
     onDragEnd: handleDragEnd,
@@ -752,6 +770,8 @@ export default function App() {
           setIsPresentationMode(entering);
           if (entering) {
             document.documentElement.requestFullscreen?.().catch(() => {});
+            // Scroll to today after layout shift
+            setTimeout(() => handleGoToToday(), 150);
           } else {
             document.exitFullscreen?.().catch(() => {});
           }

@@ -113,6 +113,7 @@ export function MilestoneDialog({
           <h2 className="dialog__title">
             {isEdit ? 'Rediger milepæl' : 'Ny milepæl'}
           </h2>
+          <button type="button" className="dialog__close" onClick={onClose} aria-label="Lukk">&times;</button>
         </div>
 
         <div className="dialog__body">
