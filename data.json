@@ -71,14 +71,14 @@
       "id": "demo-7",
       "title": "Teams Education",
       "person": "simen",
-      "startDate": "2026-04-14",
-      "endDate": "2026-05-08",
+      "startDate": "2026-03-23",
+      "endDate": "2026-04-16",
       "percent": 40,
       "color": "#EC4899",
       "status": "planned",
       "description": "Teams Education provisioning modul",
       "links": [],
-      "updatedAt": "2026-03-13T10:00:00Z",
+      "updatedAt": "2026-03-15T20:46:51.968Z",
       "updatedBy": "simen"
     },
     {
@@ -108,6 +108,20 @@
       "links": [],
       "updatedAt": "2026-03-15T20:45:58.812Z",
       "updatedBy": "fredrik"
+    },
+    {
+      "id": "b572b0dc-e8f4-4b6c-b548-166b276d93ab",
+      "title": "Teams Education (kopi)",
+      "person": "simen",
+      "startDate": "2026-03-23",
+      "endDate": "2026-04-16",
+      "percent": 40,
+      "color": "#EC4899",
+      "status": "planned",
+      "description": "Teams Education provisioning modul",
+      "links": [],
+      "updatedAt": "2026-03-15T20:46:58.035Z",
+      "updatedBy": "user"
     }
   ],
   "unavailable": [
