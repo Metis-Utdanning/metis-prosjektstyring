@@ -151,8 +151,8 @@ body {
 }
 
 .autosave-indicator--saving {
-  background: #1e40af;
-  color: #dbeafe;
+  background: #4F46E5;
+  color: #e0e7ff;
 }
 
 .autosave-indicator--saved {
@@ -184,6 +184,12 @@ body {
 
 .presentation-exit:hover {
   opacity: 0.85;
+}
+
+.presentation-exit:focus-visible {
+  opacity: 0.9;
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 3px;
 }
 
 /* --------------------------------------------------------------------------
@@ -223,7 +229,7 @@ body {
 
 .skeleton-row {
   display: flex;
-  border-bottom: 1px solid #e5e5e4;
+  border-bottom: 1px solid #E8E4DF;
   min-height: 120px;
 }
 

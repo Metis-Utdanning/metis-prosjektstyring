@@ -22,6 +22,19 @@ interface BlockElementProps {
 }
 
 /**
+ * Determine whether text on a given background should be dark or light.
+ * Uses relative luminance to pick the best contrast.
+ */
+function getTextColor(bgHex: string): string {
+  if (!bgHex || bgHex.length < 7) return '#ffffff';
+  const r = parseInt(bgHex.slice(1, 3), 16);
+  const g = parseInt(bgHex.slice(3, 5), 16);
+  const b = parseInt(bgHex.slice(5, 7), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.55 ? '#1c1917' : '#ffffff';
+}
+
+/**
  * Compute a darker border color from the block's hex color.
  * Multiplies each RGB channel by 0.7 to get a visible border.
  */
@@ -63,6 +76,7 @@ export default function BlockElement({
   const selectedClass = selected ? ' block--selected' : '';
 
   const borderColor = darkenHex(block.color);
+  const textColor = getTextColor(block.color);
 
   const handleClick = useCallback(() => {
     onEdit?.(block);
@@ -141,6 +155,7 @@ export default function BlockElement({
         top: 0,
         backgroundColor: block.color,
         borderColor,
+        color: textColor,
         animationDelay: animationIndex !== undefined ? `${animationIndex * 0.06}s` : undefined,
       }}
       tabIndex={0}

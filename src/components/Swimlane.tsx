@@ -1,6 +1,6 @@
 import { useMemo, type PointerEvent as ReactPointerEvent } from 'react';
 import type { Person, Block, Unavailable, WeekInfo } from '../types/index.ts';
-import { dateToPixelOffset, parseISO } from '../utils/dates.ts';
+import { dateToPixelOffset, parseISO, addDays } from '../utils/dates.ts';
 import { SWIMLANE_HEIGHT, PALETTE } from '../utils/constants.ts';
 import BlockElement from './BlockElement.tsx';
 import CapacityBar from './CapacityBar.tsx';
@@ -39,29 +39,37 @@ function layoutBlocks(
     return b.endDate.localeCompare(a.endDate);
   });
 
-  const rows: string[][] = []; // each row tracks endDates of placed blocks
+  const rowMaxEnd: string[] = []; // tracks the latest endDate per row
 
   return sorted.map((block) => {
     const blockStart = block.startDate;
 
     /* Find first row where this block fits (no overlap) */
     let placed = -1;
-    for (let r = 0; r < rows.length; r++) {
-      const lastEnd = rows[r][rows[r].length - 1];
-      if (lastEnd < blockStart) {
+    for (let r = 0; r < rowMaxEnd.length; r++) {
+      if (rowMaxEnd[r] < blockStart) {
         placed = r;
         break;
       }
     }
 
     if (placed === -1) {
-      placed = rows.length;
-      rows.push([]);
+      placed = rowMaxEnd.length;
+      rowMaxEnd.push('');
     }
 
-    rows[placed].push(block.endDate);
+    // Track the maximum endDate for this row
+    if (block.endDate > rowMaxEnd[placed]) {
+      rowMaxEnd[placed] = block.endDate;
+    }
     return { block, row: placed };
   });
+}
+
+const MIN_BLOCK_HEIGHT = 22;
+
+function blockHeight(percent: number): number {
+  return Math.max(Math.round((percent / 100) * SWIMLANE_HEIGHT), MIN_BLOCK_HEIGHT);
 }
 
 export default function Swimlane({
@@ -104,21 +112,10 @@ export default function Swimlane({
     [personBlocks],
   );
 
-  /* Compute max row count to size the swimlane */
-  const maxRow = useMemo(
-    () => (layoutItems.length > 0 ? Math.max(...layoutItems.map((l) => l.row)) : -1),
-    [layoutItems],
-  );
-
   /* Height is proportional to percent: 100% = full unit height */
-  const unitHeight = SWIMLANE_HEIGHT; // reference height for 100%
-  const minBlockHeight = 22; // minimum so text is readable
+  // layout constants
   const blockGap = 4;
   const paddingVert = 8;
-
-  function blockHeight(percent: number): number {
-    return Math.max(Math.round((percent / 100) * unitHeight), minBlockHeight);
-  }
 
   /* Calculate stacked content height (sum of rows considering proportional heights) */
   const contentHeight = useMemo(() => {
@@ -161,8 +158,7 @@ export default function Swimlane({
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const daysFromStart = Math.floor(x / dayWidth);
-    const clickDate = new Date(timelineStart);
-    clickDate.setDate(clickDate.getDate() + daysFromStart);
+    const clickDate = addDays(timelineStart, daysFromStart);
     onDoubleClick(person.id, clickDate);
   };
 
@@ -174,8 +170,7 @@ export default function Swimlane({
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const daysFromStart = Math.floor(x / dayWidth);
-    const clickDate = new Date(timelineStart);
-    clickDate.setDate(clickDate.getDate() + daysFromStart);
+    const clickDate = addDays(timelineStart, daysFromStart);
     // Dispatch to parent via custom event or prop — we emit a DOM event
     const event = new CustomEvent('swimlane-context', {
       bubbles: true,

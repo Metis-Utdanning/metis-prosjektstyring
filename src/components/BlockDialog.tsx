@@ -197,7 +197,7 @@ export function BlockDialog({
   }, []);
 
   const isEdit = block !== null;
-  const isValid = title.trim().length > 0 && person && startDate && endDate && startDate <= endDate;
+  const isValid = title.trim().length > 0 && person && startDate && endDate && startDate <= endDate && percent > 0 && !isNaN(percent);
 
   // --- Updated-by display ---
   const updatedByName = isEdit

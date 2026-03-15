@@ -109,7 +109,13 @@ export async function saveCalendarData(
   sha: string | null,
   token: string,
 ): Promise<string> {
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+  const jsonStr = JSON.stringify(data, null, 2);
+  const bytes = new TextEncoder().encode(jsonStr);
+  let binary = '';
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  const content = btoa(binary);
 
   const body: Record<string, unknown> = {
     message: `Oppdater kapasitetsdata (${new Date().toLocaleString('nb-NO')})`,
@@ -131,7 +137,7 @@ export async function saveCalendarData(
     body: JSON.stringify(body),
   });
 
-  if (res.status === 409) {
+  if (res.status === 409 || res.status === 422) {
     throw new GitHubConflictError();
   }
 

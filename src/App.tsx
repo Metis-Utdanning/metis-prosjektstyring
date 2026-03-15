@@ -1,9 +1,8 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { Block, Milestone, Unavailable, ViewMode, WeekInfo } from './types';
-import { PALETTE, WEEK_COLUMN_WIDTH, DAY_COLUMN_WIDTH, DEFAULT_DATA } from './utils/constants';
+import { WEEK_COLUMN_WIDTH, DAY_COLUMN_WIDTH } from './utils/constants';
 import {
   getWeeksInRange,
-  getWeekInfo,
   dateToPixelOffset,
   formatDateShort,
   getWeekdayDates,
@@ -219,7 +218,6 @@ export default function App() {
     canUndo,
     canRedo,
     save,
-    reload,
     isLoading,
     isSaving,
     error,
@@ -229,12 +227,13 @@ export default function App() {
   } = useCalendarData(token);
 
   // Use demo data if the loaded data has no blocks (e.g. GitHub unavailable)
+  const isDemoMode = rawData.blocks.length === 0 && rawData.milestones.length === 0;
   const data: CalendarData = useMemo(() => {
-    if (rawData.blocks.length === 0 && rawData.milestones.length === 0) {
+    if (isDemoMode) {
       return DEMO_DATA;
     }
     return rawData;
-  }, [rawData]);
+  }, [rawData, isDemoMode]);
 
   // --- View state ---
   const [viewMode, setViewMode] = useState<ViewMode>('overview');
@@ -314,8 +313,6 @@ export default function App() {
     [timelineStart, timelineEnd],
   );
 
-  const currentWeek = useMemo(() => getWeekInfo(today), [today]);
-
   const dayWidth = useMemo(() => {
     if (viewMode === 'week') return DAY_COLUMN_WIDTH;
     return (WEEK_COLUMN_WIDTH * zoomFactor) / 7;
@@ -342,95 +339,97 @@ export default function App() {
   const handleSaveBlock = useCallback(
     (block: Block) => {
       if (isNewBlock) {
-        setData({ ...data, blocks: [...data.blocks, block] });
+        setData({ ...rawData, blocks: [...rawData.blocks, block] });
       } else {
         setData({
-          ...data,
-          blocks: data.blocks.map((b) => (b.id === block.id ? block : b)),
+          ...rawData,
+          blocks: rawData.blocks.map((b) => (b.id === block.id ? block : b)),
         });
       }
       setEditingBlock(null);
       setIsNewBlock(false);
     },
-    [data, setData, isNewBlock],
+    [rawData, setData, isNewBlock],
   );
 
   const handleDeleteBlock = useCallback(
     (id: string) => {
-      setData({ ...data, blocks: data.blocks.filter((b) => b.id !== id) });
+      setData({ ...rawData, blocks: rawData.blocks.filter((b) => b.id !== id) });
       setEditingBlock(null);
       setIsNewBlock(false);
     },
-    [data, setData],
+    [rawData, setData],
   );
 
   // --- Milestone CRUD ---
   const handleSaveMilestone = useCallback(
     (ms: Milestone) => {
       if (isNewMilestone) {
-        setData({ ...data, milestones: [...data.milestones, ms] });
+        setData({ ...rawData, milestones: [...rawData.milestones, ms] });
       } else {
         setData({
-          ...data,
-          milestones: data.milestones.map((m) => (m.id === ms.id ? ms : m)),
+          ...rawData,
+          milestones: rawData.milestones.map((m) => (m.id === ms.id ? ms : m)),
         });
       }
       setEditingMilestone(null);
       setIsNewMilestone(false);
     },
-    [data, setData, isNewMilestone],
+    [rawData, setData, isNewMilestone],
   );
 
   const handleDeleteMilestone = useCallback(
     (id: string) => {
-      setData({ ...data, milestones: data.milestones.filter((m) => m.id !== id) });
+      setData({ ...rawData, milestones: rawData.milestones.filter((m) => m.id !== id) });
       setEditingMilestone(null);
       setIsNewMilestone(false);
     },
-    [data, setData],
+    [rawData, setData],
   );
 
   // --- Unavailable CRUD ---
   const handleSaveUnavailable = useCallback(
     (entry: Unavailable) => {
       if (isNewUnavailable) {
-        setData({ ...data, unavailable: [...data.unavailable, entry] });
+        setData({ ...rawData, unavailable: [...rawData.unavailable, entry] });
       } else {
         setData({
-          ...data,
-          unavailable: data.unavailable.map((u) => (u.id === entry.id ? entry : u)),
+          ...rawData,
+          unavailable: rawData.unavailable.map((u) => (u.id === entry.id ? entry : u)),
         });
       }
       setEditingUnavailable(null);
       setIsNewUnavailable(false);
     },
-    [data, setData, isNewUnavailable],
+    [rawData, setData, isNewUnavailable],
   );
 
   const handleDeleteUnavailable = useCallback(
     (id: string) => {
-      setData({ ...data, unavailable: data.unavailable.filter((u) => u.id !== id) });
+      setData({ ...rawData, unavailable: rawData.unavailable.filter((u) => u.id !== id) });
       setEditingUnavailable(null);
       setIsNewUnavailable(false);
     },
-    [data, setData],
+    [rawData, setData],
   );
 
   // --- Drag-and-drop ---
   const handleDragEnd = useCallback(
     (blockId: string, newStart: Date, newEnd: Date) => {
+      // Don't allow dragging demo blocks into real data
+      if (!rawData.blocks.find((b) => b.id === blockId)) return;
       const startStr = format(newStart, 'yyyy-MM-dd');
       const endStr = format(newEnd, 'yyyy-MM-dd');
       setData({
-        ...data,
-        blocks: data.blocks.map((b) =>
+        ...rawData,
+        blocks: rawData.blocks.map((b) =>
           b.id === blockId
             ? { ...b, startDate: startStr, endDate: endStr, updatedAt: new Date().toISOString() }
             : b,
         ),
       });
     },
-    [data, setData],
+    [rawData, setData],
   );
 
   const handleBlockClick = useCallback(
@@ -449,14 +448,15 @@ export default function App() {
 
   const handleSwimlaneContextMenu = useCallback(
     (personId: string, x: number, y: number, date: Date) => {
-      if (!isEditorMode) return;
+      if (!isEditorMode || isPresentationMode) return;
       setContextMenu({ x, y, personId, clickDate: date });
     },
-    [isEditorMode],
+    [isEditorMode, isPresentationMode],
   );
 
   const handleDuplicateBlock = useCallback(
     (block: Block) => {
+      if (!rawData.blocks.find((b) => b.id === block.id)) return;
       const newBlock: Block = {
         ...block,
         id: crypto.randomUUID(),
@@ -464,25 +464,26 @@ export default function App() {
         updatedAt: new Date().toISOString(),
         updatedBy: 'user',
       };
-      setData({ ...data, blocks: [...data.blocks, newBlock] });
+      setData({ ...rawData, blocks: [...rawData.blocks, newBlock] });
     },
-    [data, setData],
+    [rawData, setData],
   );
 
   const handleContextDeleteBlock = useCallback(
     (block: Block) => {
+      if (!rawData.blocks.find((b) => b.id === block.id)) return;
       if (window.confirm(`Slett "${block.title}"?`)) {
-        setData({ ...data, blocks: data.blocks.filter((b) => b.id !== block.id) });
+        setData({ ...rawData, blocks: rawData.blocks.filter((b) => b.id !== block.id) });
         if (selectedBlockId === block.id) setSelectedBlockId(null);
       }
     },
-    [data, setData, selectedBlockId],
+    [rawData, setData, selectedBlockId],
   );
 
   const handleContextNewBlock = useCallback(
     (personId: string, date: Date) => {
       setDefaultPerson(personId);
-      setDefaultDate(date.toISOString().slice(0, 10));
+      setDefaultDate(format(date, 'yyyy-MM-dd'));
       setEditingBlock(null);
       setIsNewBlock(true);
     },
@@ -526,16 +527,17 @@ export default function App() {
 
   const handlePercentChange = useCallback(
     (block: Block, newPercent: number) => {
+      if (!rawData.blocks.find((b) => b.id === block.id)) return;
       setData({
-        ...data,
-        blocks: data.blocks.map((b) =>
+        ...rawData,
+        blocks: rawData.blocks.map((b) =>
           b.id === block.id
             ? { ...b, percent: newPercent, updatedAt: new Date().toISOString() }
             : b,
         ),
       });
     },
-    [data, setData],
+    [rawData, setData],
   );
 
   const handleSwimlanePointerDown = useCallback(
@@ -555,19 +557,19 @@ export default function App() {
 
   const handleSwimlaneDoubleClick = useCallback(
     (personId: string, date: Date) => {
-      if (!isEditorMode) return;
+      if (!isEditorMode || isPresentationMode) return;
       setDefaultPerson(personId);
-      setDefaultDate(date.toISOString().slice(0, 10));
+      setDefaultDate(format(date, 'yyyy-MM-dd'));
       setEditingBlock(null);
       setIsNewBlock(true);
     },
-    [isEditorMode],
+    [isEditorMode, isPresentationMode],
   );
 
   // --- Toolbar actions ---
   const handleNewBlock = useCallback(() => {
     setDefaultPerson(data.people[0]?.id);
-    setDefaultDate(new Date().toISOString().slice(0, 10));
+    setDefaultDate(format(new Date(), 'yyyy-MM-dd'));
     setEditingBlock(null);
     setIsNewBlock(true);
   }, [data.people]);
@@ -640,14 +642,14 @@ export default function App() {
         onEscape: closeAllDialogs,
         onDelete: () => {
           if (!selectedBlockId) return;
-          const block = data.blocks.find((b) => b.id === selectedBlockId);
+          const block = rawData.blocks.find((b) => b.id === selectedBlockId);
           if (block && window.confirm(`Slett "${block.title}"?`)) {
-            setData({ ...data, blocks: data.blocks.filter((b) => b.id !== selectedBlockId) });
+            setData({ ...rawData, blocks: rawData.blocks.filter((b) => b.id !== selectedBlockId) });
             setSelectedBlockId(null);
           }
         },
       }),
-      [undo, redo, handleSave, closeAllDialogs, selectedBlockId, data, setData],
+      [undo, redo, handleSave, closeAllDialogs, selectedBlockId, rawData, setData],
     ),
   );
 

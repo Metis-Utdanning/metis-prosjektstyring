@@ -137,14 +137,12 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
         // Widen/shrink to the right by changing scaleX relative to current width
         const origDuration = differenceInCalendarDays(d.currentEnd, d.currentStart) + 1;
         const newDuration = Math.max(1, origDuration + deltaDays);
-        const origWidthPx = origDuration * dw;
         const newWidthPx = newDuration * dw;
         d.element.style.width = `${newWidthPx}px`;
         // Keep transform at 0 so left edge stays put
         d.element.style.transform = '';
         // Show preview style for consumers that render a separate ghost
         setDragPreviewStyle({ width: newWidthPx, left: 0 } as React.CSSProperties);
-        void origWidthPx; // suppress unused-local
       } else if (mode === 'resize-start') {
         // Move left edge: translate + change width
         const origDuration = differenceInCalendarDays(d.currentEnd, d.currentStart) + 1;
@@ -223,7 +221,7 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       newStart = currentStart;
       const rawEnd = addDays(currentEnd, deltaDays);
       newEnd = snapDate(rawEnd, doSnap);
-      // Ensure minimum 1-day duration
+      // Ensure end is not before start (startDate === endDate = valid 1-day block)
       if (differenceInCalendarDays(newEnd, newStart) < 0) {
         newEnd = newStart;
       }
@@ -232,7 +230,7 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       const rawStart = addDays(currentStart, deltaDays);
       newStart = snapDate(rawStart, doSnap);
       newEnd = currentEnd;
-      // Ensure minimum 1-day duration
+      // Ensure start is not after end
       if (differenceInCalendarDays(newEnd, newStart) < 0) {
         newStart = newEnd;
       }

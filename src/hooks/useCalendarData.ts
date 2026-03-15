@@ -255,6 +255,10 @@ export function useCalendarData(token: string | null): UseCalendarDataReturn {
       setError('Du m\u00E5 lime inn en GitHub-token for \u00E5 lagre.');
       return false;
     }
+    if (isSavingRef.current) return false; // prevent race with auto-save
+
+    // Cancel any pending auto-save timer to avoid double-save
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
 
     isSavingRef.current = true;
     setIsSaving(true);
@@ -315,6 +319,7 @@ export function useCalendarData(token: string | null): UseCalendarDataReturn {
 
   useEffect(() => {
     if (unsavedChanges === 0 || !token) {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
       setAutoSaveStatus('idle');
       return;
     }

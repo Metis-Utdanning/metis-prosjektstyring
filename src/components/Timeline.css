@@ -49,7 +49,7 @@
 .timeline-header {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 40;
   user-select: none;
   display: flex;
   background: var(--tl-header-bg); /* opaque when sticky */
@@ -61,7 +61,7 @@
   width: 120px;
   flex-shrink: 0;
   background: var(--tl-label-bg);
-  z-index: 21;
+  z-index: 41;
   border-right: 1px solid #DDD9D2;
 }
 
@@ -384,7 +384,7 @@
 }
 
 .block--dragging {
-  opacity: 0.65;
+  opacity: 0.75;
   cursor: grabbing;
   z-index: 50;
   box-shadow:
@@ -399,12 +399,12 @@
   font-family: var(--tl-font-sans);
   font-size: 11px;
   font-weight: 600;
-  color: #ffffff;
+  color: inherit;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   letter-spacing: 0.01em;
 }
 
@@ -413,8 +413,9 @@
   font-family: var(--tl-font-mono);
   font-size: 10px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  color: inherit;
+  opacity: 0.85;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   letter-spacing: -0.03em;
 }
 
@@ -448,8 +449,8 @@
   width: 3px;
   height: 16px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
 .block__resize-handle--left {
@@ -495,8 +496,8 @@
   width: 24px;
   height: 3px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
 .block__tooltip {
@@ -566,7 +567,7 @@
   border-radius: 10px;
   margin: 0 1px;
   position: relative;
-  cursor: default;
+  cursor: help;
   letter-spacing: -0.03em;
   transition: filter 0.12s ease;
 }
