@@ -202,14 +202,27 @@ export default function Swimlane({
           onDoubleClick={handleDoubleClick}
           onContextMenu={handleContextMenu}
         >
-          {/* Week grid lines */}
-          {weeks.map((week, i) => (
-            <div
-              key={`grid-${week.year}-${week.weekNumber}`}
-              className="swimlane__week-grid-line"
-              style={{ left: i * weekWidth }}
-            />
-          ))}
+          {/* Day + week grid lines */}
+          {weeks.map((week, i) => {
+            const weekLeft = i * weekWidth;
+            return (
+              <div key={`grid-${week.year}-${week.weekNumber}`}>
+                {/* Day lines within each week (skip first day = week line) */}
+                {dayWidth >= 8 && [1, 2, 3, 4, 5, 6].map((d) => (
+                  <div
+                    key={`day-${i}-${d}`}
+                    className="swimlane__day-grid-line"
+                    style={{ left: weekLeft + d * dayWidth }}
+                  />
+                ))}
+                {/* Week line (thicker) */}
+                <div
+                  className="swimlane__week-grid-line"
+                  style={{ left: weekLeft }}
+                />
+              </div>
+            );
+          })}
 
           {/* Unavailable periods */}
           {personUnavailable.map((u) => {

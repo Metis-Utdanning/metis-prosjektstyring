@@ -286,6 +286,16 @@
   box-shadow: 0 0 6px rgba(79, 70, 229, 0.15);
 }
 
+.swimlane__day-grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .swimlane__week-grid-line {
   position: absolute;
   top: 0;
@@ -482,8 +492,13 @@
   cursor: ns-resize;
 }
 
-/* Keep bottom handle visible when hovering the handle itself */
-.block__resize-handle--bottom:hover {
+/* Bottom handle: always slightly visible so users know it exists */
+.block__resize-handle--bottom {
+  opacity: 0.3;
+}
+
+.block__resize-handle--bottom:hover,
+.block:hover .block__resize-handle--bottom {
   opacity: 1;
 }
 

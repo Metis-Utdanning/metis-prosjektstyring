@@ -131,8 +131,12 @@ export function useDrag(options: UseDragOptions): UseDragReturn {
       const deltaDays = pxToDays(dx, dw);
 
       if (mode === 'move') {
-        // Translate the whole block (include lift for drag feel)
-        d.element.style.transform = `translateX(${deltaDays * dw}px) translateY(-3px)`;
+        // Snap visual position to weeks in overview mode so block doesn't jump on release
+        let visualDays = deltaDays;
+        if (optionsRef.current.snapToWeek) {
+          visualDays = Math.round(deltaDays / 7) * 7;
+        }
+        d.element.style.transform = `translateX(${visualDays * dw}px) translateY(-3px)`;
       } else if (mode === 'resize-end') {
         // Widen/shrink to the right by changing scaleX relative to current width
         const origDuration = differenceInCalendarDays(d.currentEnd, d.currentStart) + 1;

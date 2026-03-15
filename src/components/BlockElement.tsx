@@ -152,16 +152,17 @@ export default function BlockElement({
         // Restore original text (React will update it after state change)
         if (percentEl) percentEl.textContent = `${finalPercent}%`;
 
-        if (didMove) {
+        // Always eat the click that follows pointerup to prevent dialog from opening
+        const eatClick = (ev: MouseEvent) => {
+          ev.stopPropagation();
+          ev.stopImmediatePropagation();
+          ev.preventDefault();
+        };
+        window.addEventListener('click', eatClick, { capture: true, once: true });
+        setTimeout(() => window.removeEventListener('click', eatClick, true), 200);
+
+        if (didMove && finalPercent !== startPercent) {
           onPercentChange?.(block, finalPercent);
-          // Eat the click event that follows pointerup to prevent dialog from opening
-          const eatClick = (ev: MouseEvent) => {
-            ev.stopPropagation();
-            ev.stopImmediatePropagation();
-            ev.preventDefault();
-          };
-          window.addEventListener('click', eatClick, { capture: true, once: true });
-          setTimeout(() => window.removeEventListener('click', eatClick, true), 200);
         }
       };
 
