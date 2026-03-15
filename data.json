@@ -68,20 +68,6 @@
       "updatedBy": "simen"
     },
     {
-      "id": "demo-7",
-      "title": "Teams Education",
-      "person": "simen",
-      "startDate": "2026-03-16",
-      "endDate": "2026-04-09",
-      "percent": 80,
-      "color": "#EC4899",
-      "status": "planned",
-      "description": "Teams Education provisioning modul",
-      "links": [],
-      "updatedAt": "2026-03-15T21:02:20.068Z",
-      "updatedBy": "simen"
-    },
-    {
       "id": "demo-8",
       "title": "HubSpot-integrasjon",
       "person": "simen",
@@ -128,13 +114,13 @@
       "title": "Metisverse - Inntak",
       "person": "simen",
       "startDate": "2026-03-16",
-      "endDate": "2026-04-03",
-      "percent": 50,
+      "endDate": "2026-03-29",
+      "percent": 80,
       "color": "#6B9EC7",
       "status": "active",
       "description": "Fungerende inntaksmodul og kontraktsmotor",
       "links": [],
-      "updatedAt": "2026-03-15T21:08:47.132Z",
+      "updatedAt": "2026-03-15T21:08:57.558Z",
       "updatedBy": "simen"
     }
   ],
