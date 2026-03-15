@@ -12,22 +12,6 @@
   ],
   "blocks": [
     {
-      "id": "demo-1",
-      "title": "Privatistportal",
-      "person": "fredrik",
-      "startDate": "2026-03-09",
-      "endDate": "2026-03-30",
-      "percent": 80,
-      "color": "#3B82F6",
-      "status": "active",
-      "description": "Payload CMS kursmateriale-plattform",
-      "links": [
-        "https://github.com/Metis-Utdanning/metis-privatistkurs"
-      ],
-      "updatedAt": "2026-03-13T20:49:05.814Z",
-      "updatedBy": "fredrik"
-    },
-    {
       "id": "demo-2",
       "title": "Bergen Private Gymnas",
       "person": "fredrik",
@@ -92,7 +76,7 @@
       "percent": 20,
       "color": "#06B6D4",
       "status": "active",
-      "description": "Løpende IT-drift og support",
+      "description": "LÃ¸pende IT-drift og support",
       "links": [],
       "updatedAt": "2026-03-13T10:00:00Z",
       "updatedBy": "simen"
@@ -147,7 +131,7 @@
       "id": "demo-ms-1",
       "title": "Privatistportal MVP",
       "date": "2026-04-10",
-      "description": "Første kursinnhold tilgjengelig"
+      "description": "FÃ¸rste kursinnhold tilgjengelig"
     },
     {
       "id": "demo-ms-2",
