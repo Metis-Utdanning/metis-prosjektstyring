@@ -60,11 +60,7 @@ export function Toolbar({
   isEditorMode = false,
   onZoomChange,
 }: ToolbarProps) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number } | null>(null);
   const [showError, setShowError] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const dropdownBtnRef = useRef<HTMLButtonElement>(null);
 
   // --- Sync error visibility ---
   useEffect(() => {
@@ -73,27 +69,8 @@ export function Toolbar({
     }
   }, [error]);
 
-  // --- Close dropdown on click outside ---
-  useEffect(() => {
-    if (!dropdownOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener('pointerdown', handleClick);
-    return () => document.removeEventListener('pointerdown', handleClick);
-  }, [dropdownOpen]);
 
   // Keyboard shortcuts are handled globally by useKeyboard in App.tsx
-
-  const handleDropdownAction = useCallback(
-    (action: () => void) => {
-      setDropdownOpen(false);
-      action();
-    },
-    [],
-  );
 
   const dismissError = useCallback(() => {
     setShowError(false);
@@ -154,51 +131,11 @@ export function Toolbar({
 
       <div className="toolbar__separator" />
 
-      {/* Add dropdown */}
+      {/* Add buttons */}
       <div className="toolbar__group">
-        <div className="toolbar__dropdown-wrapper" ref={dropdownRef}>
-          <button
-            type="button"
-            className="toolbar__btn"
-            ref={dropdownBtnRef}
-            onClick={() => {
-              if (!dropdownOpen && dropdownBtnRef.current) {
-                const rect = dropdownBtnRef.current.getBoundingClientRect();
-                setDropdownPos({ top: rect.bottom + 6, left: rect.left });
-              }
-              setDropdownOpen((prev) => !prev);
-            }}
-            aria-haspopup="true"
-            aria-expanded={dropdownOpen}
-          >
-            + Ny
-          </button>
-          {dropdownOpen && dropdownPos && (
-            <div className="toolbar__dropdown" style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left }}>
-              <button
-                type="button"
-                className="toolbar__dropdown-item"
-                onClick={() => handleDropdownAction(onNewBlock)}
-              >
-                Ny blokk
-              </button>
-              <button
-                type="button"
-                className="toolbar__dropdown-item"
-                onClick={() => handleDropdownAction(onNewMilestone)}
-              >
-                Ny milepæl
-              </button>
-              <button
-                type="button"
-                className="toolbar__dropdown-item"
-                onClick={() => handleDropdownAction(onNewUnavailable)}
-              >
-                Nytt fravær
-              </button>
-            </div>
-          )}
-        </div>
+        <button type="button" className="toolbar__btn" onClick={onNewBlock}>+ Blokk</button>
+        <button type="button" className="toolbar__btn" onClick={onNewMilestone}>+ Milepæl</button>
+        <button type="button" className="toolbar__btn" onClick={onNewUnavailable}>+ Fravær</button>
       </div>
 
       <div className="toolbar__separator" />

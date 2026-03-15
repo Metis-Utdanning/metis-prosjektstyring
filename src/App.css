@@ -20,7 +20,7 @@ body,
 #root {
   height: 100%;
   margin: 0;
-  overflow: hidden;
+  overflow: clip;
 }
 
 body {
@@ -43,7 +43,7 @@ body {
   height: 100%;
   height: 100dvh; /* modern dynamic viewport */
   width: 100%;
-  overflow: hidden;
+  overflow: clip;
   background: #F4F1EC;
 }
 
@@ -217,7 +217,7 @@ body {
 .skeleton-timeline {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow: clip;
   background: #F4F1EC;
 }
 
