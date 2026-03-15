@@ -519,7 +519,7 @@ export default function App() {
     onClick: handleBlockClick,
     dayWidth,
     timelineStart: activeTimelineStart,
-    snapToWeek: viewMode === 'overview',
+    snapToWeek: false, // always snap to day for precise placement
   });
 
   // --- Track last click Y for dialog positioning ---

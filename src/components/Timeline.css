@@ -291,7 +291,7 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(0, 0, 0, 0.06);
   pointer-events: none;
   z-index: 0;
 }
@@ -300,8 +300,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 1px;
-  background: var(--tl-border-light);
+  width: 2px;
+  background: rgba(0, 0, 0, 0.13);
   pointer-events: none;
   z-index: 0;
 }
