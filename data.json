@@ -62,7 +62,7 @@
       "percent": 20,
       "color": "#06B6D4",
       "status": "active",
-      "description": "LÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸pende IT-drift og support",
+      "description": "LÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸pende IT-drift og support",
       "links": [],
       "updatedAt": "2026-03-13T10:00:00Z",
       "updatedBy": "simen"
@@ -100,13 +100,13 @@
       "title": "Inntaksmodul",
       "person": "fredrik",
       "startDate": "2026-03-16",
-      "endDate": "2026-03-16",
+      "endDate": "2026-03-22",
       "percent": 80,
       "color": "#6B8ADB",
       "status": "active",
-      "description": "SÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸rge for fungerende inntaksmodul i MetisVerse, og solid overfÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸ring og datakvalitets-kontroll fra hubspot til MetisDB",
+      "description": "SÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸rge for fungerende inntaksmodul i MetisVerse, og solid overfÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸ring og datakvalitets-kontroll fra hubspot til MetisDB",
       "links": [],
-      "updatedAt": "2026-03-15T20:52:00.527Z",
+      "updatedAt": "2026-03-15T21:03:43.214Z",
       "updatedBy": "fredrik"
     },
     {
@@ -120,7 +120,7 @@
       "status": "planned",
       "description": "Fullstendig erstatning av teams-rom for privatist: Kursmodul med filopplasting. Bygget inn som parallell frontend til minside.",
       "links": [],
-      "updatedAt": "2026-03-15T21:02:36.814Z",
+      "updatedAt": "2026-03-15T21:03:40.560Z",
       "updatedBy": "fredrik"
     }
   ],
@@ -145,7 +145,7 @@
       "id": "demo-ms-1",
       "title": "Privatistportal MVP",
       "date": "2026-04-10",
-      "description": "FÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸rste kursinnhold tilgjengelig"
+      "description": "FÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸rste kursinnhold tilgjengelig"
     },
     {
       "id": "demo-ms-2",
