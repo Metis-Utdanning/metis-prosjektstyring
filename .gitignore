@@ -3,3 +3,4 @@ dist
 .vite
 *.local
 .claude/worktrees/
+.DS_Store
